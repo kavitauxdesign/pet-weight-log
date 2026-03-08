@@ -22,8 +22,7 @@ coverage
 !.env.example
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+.vscode
 .idea
 *.suo
 *.ntvs*
@@ -44,3 +43,11 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+.editorconfig
+.prettier*
+stylelint.config.js
+eslint.config.js
+eslintignore
+
+.oxlintrc.json
