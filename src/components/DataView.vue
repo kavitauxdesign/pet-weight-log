@@ -1,3 +1,9 @@
+function onDateInputChange(e) { // e.target.value is YYYY-MM-DD const iso = e.target.value
+editForm.value.dateISO = iso // Format to DD mon YYYY (e.g. 09 mar 2026) if (iso) { const d = new
+Date(iso) if (!isNaN(d)) { // Spanish month short const months = ['ene', 'feb', 'mar', 'abr', 'may',
+'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'] const day = String(d.getDate()).padStart(2, '0')
+const mon = months[d.getMonth()] const year = d.getFullYear() editForm.value.date = `${day} ${mon}
+${year}` } } else { editForm.value.date = '' } }
 <template>
   <section
     :class="[
@@ -254,10 +260,10 @@
               >Fecha</label
             >
             <input
-              v-model="editForm.date"
-              type="text"
-              placeholder="08 dic 2025"
+              v-model="editForm.dateISO"
+              type="date"
               class="input-field"
+              @change="onDateInputChange"
             />
           </div>
 
@@ -332,12 +338,15 @@ import {
   CategoryScale,
 } from 'chart.js'
 import DataViewActionButton from '@/components/DataViewActionButton.vue'
-import {
-  formatDateForDisplay,
-  getAgeTextFromBirthday,
-  normalizeDateForStorage,
-  parseSpanishDate,
-} from '@/utils/petAge'
+import { formatDateForDisplay, getAgeTextFromBirthday } from '@/utils/petAge'
+import { onMounted } from 'vue'
+
+onMounted(async () => {
+  if (!showTable.value && props.rows.length > 0) {
+    await nextTick()
+    renderChart()
+  }
+})
 
 const props = defineProps({
   rows: {
@@ -388,7 +397,8 @@ const showTable = ref(false)
 const pendingDeleteId = ref(null)
 const pendingEditId = ref(null)
 const editForm = ref({
-  date: '',
+  date: '', // DD mon YYYY (display)
+  dateISO: '', // YYYY-MM-DD (for input[type=date])
   weights: {},
 })
 let chartInstance = null
@@ -413,13 +423,17 @@ const isEditingPendingRecord = computed(() => {
   return Number.isFinite(pendingEditId.value) && props.editingId === pendingEditId.value
 })
 const isEditFormValid = computed(() => {
-  const parsedDate = parseSpanishDate(editForm.value.date)
+  // Accept only if dateISO is valid and all weights are valid
+  const iso = editForm.value.dateISO
   const hasPets = petColumns.value.length > 0
-
-  if (!parsedDate || !hasPets) {
+  let validDate = false
+  if (iso) {
+    const d = new Date(iso)
+    validDate = !isNaN(d)
+  }
+  if (!validDate || !hasPets) {
     return false
   }
-
   return petColumns.value.every((pet) => {
     const value = editForm.value.weights[pet.weightKey]
     return Number.isInteger(value) && value > 0
@@ -444,8 +458,18 @@ function requestEdit(row) {
     petColumns.value.map((pet) => [pet.weightKey, getRowWeight(row, pet.weightKey)]),
   )
 
+  // row.date is ISO (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss)
+  let iso = ''
+  if (row.date) {
+    // Try to parse as ISO
+    const d = new Date(row.date)
+    if (!isNaN(d)) {
+      iso = d.toISOString().slice(0, 10)
+    }
+  }
   editForm.value = {
     date: formatDateForDisplay(row.date),
+    dateISO: iso,
     weights,
   }
 }
@@ -468,7 +492,8 @@ function confirmDelete() {
 function confirmEdit() {
   if (!Number.isFinite(pendingEditId.value) || !isEditFormValid.value) return
 
-  const normalizedDate = normalizeDateForStorage(editForm.value.date)
+  // Use ISO date for storage
+  const normalizedDate = editForm.value.dateISO
   if (!normalizedDate) return
 
   emit('edit-row', {
@@ -669,14 +694,14 @@ watch(showTable, async (isTableVisible) => {
 
 watch(
   () => props.rows,
-  async () => {
-    if (showTable.value) return
+  async (rows) => {
+    if (showTable.value || rows.length === 0) return
 
     await nextTick()
     destroyChart()
     renderChart()
   },
-  { deep: true, immediate: true },
+  { deep: true },
 )
 
 onBeforeUnmount(() => {

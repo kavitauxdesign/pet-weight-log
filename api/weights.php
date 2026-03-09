@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$dataFilePath = dirname(__DIR__) . '/data/weight-history.json';
-$petsConfigPath = dirname(__DIR__) . '/src/data/pets.json';
+$dataFilePath = dirname(__DIR__) . '/data/weights-history.json';
+$petsConfigPath = dirname(__DIR__) . '/data/pets.json';
 
 if (!file_exists($dataFilePath)) {
     http_response_code(500);

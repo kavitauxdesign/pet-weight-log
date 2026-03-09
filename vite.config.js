@@ -11,7 +11,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        // Use env variable for production, fallback to localhost for dev
+        target: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
@@ -25,4 +26,5 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  base: '/petpeso/',
 })

@@ -7,7 +7,9 @@ const weightsPath = path.join(rootDir, 'data', 'weight-history.json')
 const petsBackupPath = `${petsPath}.e2e-backup`
 const weightsBackupPath = `${weightsPath}.e2e-backup`
 
-const API_URL = 'http://localhost:8000/weights.php'
+// Use env variable for API base URL if present, fallback to localhost for local dev
+const API_BASE = process.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_URL = `${API_BASE.replace(/\/$/, '')}/weights.php`
 
 function logStep(step, message) {
   console.log(`[${step}] ${message}`)

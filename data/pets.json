@@ -1,0 +1,26 @@
+[
+  {
+    "id": "natty",
+    "name": "Natty",
+    "breed": "Cobaya Americana",
+    "nickname": "Niña peluche",
+    "birthday": "29 septiembre 2025",
+    "primaryColor": "var(--color-primary-natty)",
+    "photo": "/petpeso/assets/natty-avatar-white.jpg",
+    "formPhoto": "/petpeso/assets/natty-avatar-icon.png",
+    "backPhoto": "/petpeso/assets/natty.jpg",
+    "weightKey": "nattyWeight"
+  },
+  {
+    "id": "moka",
+    "name": "Moka",
+    "breed": "Cobaya Abisinia",
+    "nickname": "Despeluchá",
+    "birthday": "29 septiembre 2025",
+    "primaryColor": "var(--color-primary-moka)",
+    "photo": "/petpeso/assets/moka-avatar-white.jpg",
+    "formPhoto": "/petpeso/assets/moka-avatar-icon.png",
+    "backPhoto": "/petpeso/assets/moka.jpg",
+    "weightKey": "mokaWeight"
+  }
+]
