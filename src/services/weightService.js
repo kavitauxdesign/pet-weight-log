@@ -57,3 +57,14 @@ export async function deleteWeight(id) {
 
   await parseApiResponse(response)
 }
+
+export async function updateWeight(id, entry) {
+  const response = await fetch(`${WEIGHTS_ENDPOINT}?id=${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: getWriteHeaders(),
+    body: JSON.stringify(entry),
+  })
+
+  const payload = await parseApiResponse(response)
+  return payload?.data
+}

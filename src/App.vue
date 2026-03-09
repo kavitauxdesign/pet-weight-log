@@ -35,6 +35,40 @@
       </div>
     </Transition>
 
+    <Transition name="toast-fade">
+      <div
+        v-if="toastMessage"
+        class="fixed right-4 bottom-4 z-50 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white shadow-[0_10px_24px_rgba(5,150,105,0.32)]"
+        role="status"
+        aria-live="polite"
+      >
+        <svg
+          v-if="toastType === 'edit'"
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 20h4l10-10-4-4L4 16v4Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path d="M12 6l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <img
+          v-else-if="toastType === 'delete'"
+          class="h-4 w-4 brightness-0 invert"
+          src="/assets/trash-bin.svg"
+          alt=""
+          aria-hidden="true"
+        />
+        {{ toastMessage }}
+      </div>
+    </Transition>
+
     <header
       class="h-20 bg-[var(--color-surface)] shadow-[0_1px_2px_0_rgb(var(--shadow-card-rgb)/0.12)]"
     >
@@ -89,8 +123,10 @@
           :loading="isLoading"
           :error-message="errorMessage"
           :deleting-id="deletingId"
+          :editing-id="editingId"
           :pet-birthdays="petBirthdays"
           @delete-row="handleDeleteRow"
+          @edit-row="handleEditRow"
         />
       </section>
 
@@ -106,13 +142,17 @@ import { computed, onMounted, ref } from 'vue'
 import DataView from '@/components/DataView.vue'
 import ProfileCard from '@/components/ProfileCard.vue'
 import WeightForm from '@/components/WeightForm.vue'
-import { addWeight, deleteWeight, getWeights } from '@/services/weightService'
+import { addWeight, deleteWeight, getWeights, updateWeight } from '@/services/weightService'
 
 const rows = ref([])
 const isLoading = ref(false)
 const isInitialLoading = ref(true)
 const errorMessage = ref('')
 const deletingId = ref(null)
+const editingId = ref(null)
+const toastMessage = ref('')
+const toastType = ref('')
+let toastTimer = null
 const petBirthdays = {
   natty: '29 septiembre 2025',
   moka: '29 septiembre 2025',
@@ -176,11 +216,44 @@ async function handleDeleteRow(id) {
   try {
     await deleteWeight(id)
     rows.value = rows.value.filter((item) => item.id !== id)
+    showSuccessToast('Peso borrado!', 'delete')
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'No se pudo borrar el registro.'
   } finally {
     deletingId.value = null
   }
+}
+
+async function handleEditRow({ id, payload }) {
+  editingId.value = id
+  errorMessage.value = ''
+
+  try {
+    const updated = await updateWeight(id, payload)
+    if (updated) {
+      rows.value = rows.value.map((item) => (item.id === id ? updated : item))
+      showSuccessToast('Peso editado!', 'edit')
+    }
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'No se pudo editar el registro.'
+  } finally {
+    editingId.value = null
+  }
+}
+
+function showSuccessToast(message, type) {
+  toastMessage.value = message
+  toastType.value = type
+
+  if (toastTimer) {
+    clearTimeout(toastTimer)
+  }
+
+  toastTimer = setTimeout(() => {
+    toastMessage.value = ''
+    toastType.value = ''
+    toastTimer = null
+  }, 2200)
 }
 
 onMounted(() => {
@@ -197,5 +270,18 @@ onMounted(() => {
 .loader-fade-enter-from,
 .loader-fade-leave-to {
   opacity: 0;
+}
+
+.toast-fade-enter-active,
+.toast-fade-leave-active {
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
 }
 </style>

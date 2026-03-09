@@ -36,17 +36,18 @@
       No hay registros todavia.
     </p>
 
-    <div v-if="showTable && !loading && props.rows.length > 0" class="overflow-x-auto">
+    <div
+      v-if="showTable && !loading && props.rows.length > 0"
+      class="h-[340px] overflow-x-auto overflow-y-auto lg:overflow-x-hidden sm:h-[420px]"
+    >
       <table class="min-w-full border-collapse px-4">
         <thead>
           <tr class="border-b border-gray-200 text-left">
-            <th class="py-3 pr-6 text-sm font-medium text-[var(--color-text-secondary)]">Fecha</th>
-            <th class="py-3 pr-6 text-sm font-medium text-[var(--color-text-secondary)]">Edad</th>
-            <th class="py-3 pr-6 text-sm font-medium text-[var(--color-primary-natty)]">
-              Natty (g)
-            </th>
-            <th class="py-3 pr-6 text-sm font-medium text-[var(--color-primary-moka)]">Moka (g)</th>
-            <th class="py-3 text-right text-sm font-medium text-[var(--color-text-secondary)]">
+            <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">Fecha</th>
+            <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">Edad</th>
+            <th class="p-3 text-sm font-medium text-[var(--color-primary-natty)]">Natty (g)</th>
+            <th class="p-3 text-sm font-medium text-[var(--color-primary-moka)]">Moka (g)</th>
+            <th class="p-3 text-right text-sm font-medium text-[var(--color-text-secondary)]">
               Accion
             </th>
           </tr>
@@ -61,67 +62,150 @@
               'hover:shadow-[0_2px_8px_rgba(209,213,219,0.55)] last:border-b-0',
             ]"
           >
-            <td class="py-4 pr-6 text-sm text-[var(--color-text-dark)]">
+            <td class="p-3 text-sm text-[var(--color-text-dark)]">
               {{ formatDateForDisplay(row.date) }}
             </td>
-            <td class="py-4 pr-6 text-sm text-[var(--color-text-secondary)]">
+            <td class="p-3 text-sm text-[var(--color-text-secondary)]">
               {{ getCombinedAgeForRow(row) }}
             </td>
-            <td class="py-4 pr-6 text-sm text-[var(--color-primary-natty)]">
+            <td class="p-3 text-sm text-[var(--color-primary-natty)]">
               {{ row.nattyWeight }}
             </td>
-            <td class="py-4 pr-6 text-sm text-[var(--color-primary-moka)]">{{ row.mokaWeight }}</td>
-            <td class="py-4 text-right">
-              <div class="group relative inline-flex items-center">
-                <button
-                  type="button"
-                  :disabled="deletingId === row.id"
-                  @click="requestDelete(row.id)"
-                  :class="[
-                    'inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500',
-                    'transition hover:bg-gray-100 hover:text-gray-700',
-                    'disabled:cursor-not-allowed disabled:opacity-40',
-                  ]"
-                  aria-label="Borrar registro"
-                >
-                  <svg
-                    v-if="deletingId === row.id"
-                    class="h-4 w-4 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
+            <td class="p-3 text-sm text-[var(--color-primary-moka)]">{{ row.mokaWeight }}</td>
+            <td class="p-3 text-right">
+              <div class="inline-flex items-center gap-0.5">
+                <div class="group relative inline-flex">
+                  <button
+                    type="button"
+                    :disabled="deletingId === row.id || editingId === row.id"
+                    @click="requestEdit(row)"
+                    :class="[
+                      'inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500',
+                      'transition hover:bg-gray-100 hover:text-gray-700',
+                      'disabled:cursor-not-allowed disabled:opacity-40',
+                    ]"
+                    aria-label="Editar registro"
                   >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    />
-                    <path
-                      class="opacity-90"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
-                    />
-                  </svg>
-                  <img
-                    v-else
-                    class="h-4 w-4"
-                    src="/assets/trash-bin.svg"
-                    alt=""
-                    aria-hidden="true"
-                  />
-                </button>
-                <span
-                  :class="[
-                    'pointer-events-none absolute -top-9 right-0 rounded-md',
-                    'bg-[var(--color-text-dark)] px-2 py-1 text-xs whitespace-nowrap text-white',
-                    'opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100',
-                  ]"
-                >
-                  Borrar registro
-                </span>
+                    <svg
+                      v-if="editingId === row.id"
+                      class="h-4 w-4 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      />
+                      <path
+                        class="opacity-90"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
+                      />
+                    </svg>
+                    <svg v-else class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 20h4l10-10-4-4L4 16v4Z"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M12 6l4 4"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+                  <span
+                    class="pointer-events-none absolute bottom-full left-1/2 z-[60] mb-2 -translate-x-1/2 rounded-md bg-[var(--color-text-dark)] px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100"
+                  >
+                    Editar
+                    <span
+                      class="absolute top-full left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-x-transparent border-t-[6px] border-t-[var(--color-text-dark)]"
+                    ></span>
+                  </span>
+                </div>
+
+                <div class="group relative inline-flex">
+                  <button
+                    type="button"
+                    :disabled="deletingId === row.id || editingId === row.id"
+                    @click="requestDelete(row.id)"
+                    :class="[
+                      'inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500',
+                      'transition hover:bg-gray-100 hover:text-gray-700',
+                      'disabled:cursor-not-allowed disabled:opacity-40',
+                    ]"
+                    aria-label="Borrar registro"
+                  >
+                    <svg
+                      v-if="deletingId === row.id"
+                      class="h-4 w-4 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      />
+                      <path
+                        class="opacity-90"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
+                      />
+                    </svg>
+                    <svg v-else class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 7h16"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+                      <path
+                        d="M7.5 7.5l.7 11.2A1.5 1.5 0 0 0 9.7 20h4.6a1.5 1.5 0 0 0 1.5-1.3l.7-11.2"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+                      <path
+                        d="M10 10.5v6"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M14 10.5v6"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+                  <span
+                    class="pointer-events-none absolute bottom-full left-1/2 z-[60] mb-2 -translate-x-1/2 rounded-md bg-[var(--color-text-dark)] px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100"
+                  >
+                    Borrar
+                    <span
+                      class="absolute top-full left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-x-transparent border-t-[6px] border-t-[var(--color-text-dark)]"
+                    ></span>
+                  </span>
+                </div>
               </div>
             </td>
           </tr>
@@ -208,6 +292,103 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="isEditDialogOpen"
+      class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Editar registro de peso"
+    >
+      <div
+        class="w-full max-w-[560px] rounded-2xl bg-[var(--color-surface)] p-6 shadow-[0_12px_30px_rgba(var(--shadow-card-rgb)/0.35)]"
+      >
+        <h3 class="text-lg font-semibold text-[var(--color-text-dark)] sm:text-xl">
+          Editar registro de peso
+        </h3>
+
+        <div class="mt-5 space-y-4">
+          <div>
+            <label class="mb-2 block text-sm font-medium text-[var(--color-text-secondary)]"
+              >Fecha</label
+            >
+            <input
+              v-model="editForm.date"
+              type="text"
+              placeholder="08 dic 2025"
+              class="h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-[var(--color-text-dark)] outline-none transition focus:border-gray-400"
+            />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-medium text-[var(--color-primary-natty)]"
+              >Natty (g)</label
+            >
+            <input
+              v-model.number="editForm.nattyWeight"
+              type="number"
+              inputmode="numeric"
+              min="1"
+              step="100"
+              placeholder="800"
+              class="h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-[var(--color-text-dark)] outline-none transition focus:border-gray-400"
+            />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-medium text-[var(--color-primary-moka)]"
+              >Moka (g)</label
+            >
+            <input
+              v-model.number="editForm.mokaWeight"
+              type="number"
+              inputmode="numeric"
+              min="1"
+              step="100"
+              placeholder="800"
+              class="h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-[var(--color-text-dark)] outline-none transition focus:border-gray-400"
+            />
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-[var(--color-text-dark)] transition hover:bg-gray-50"
+            :disabled="isEditingPendingRecord"
+            @click="cancelEdit"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="rounded-xl bg-[var(--color-text-dark)] px-5 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            :disabled="!isEditFormValid || isEditingPendingRecord"
+            @click="confirmEdit"
+          >
+            <span v-if="isEditingPendingRecord" class="inline-flex items-center gap-2">
+              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-90"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
+                />
+              </svg>
+              Guardando...
+            </span>
+            <span v-else>Guardar</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -224,7 +405,7 @@ import {
   Tooltip,
   CategoryScale,
 } from 'chart.js'
-import { getAgeTextFromBirthday } from '@/utils/petAge'
+import { getAgeTextFromBirthday, parseSpanishDate } from '@/utils/petAge'
 
 const props = defineProps({
   rows: {
@@ -243,13 +424,17 @@ const props = defineProps({
     type: Number,
     default: null,
   },
+  editingId: {
+    type: Number,
+    default: null,
+  },
   petBirthdays: {
     type: Object,
     default: () => ({}),
   },
 })
 
-const emit = defineEmits(['delete-row'])
+const emit = defineEmits(['delete-row', 'edit-row'])
 
 Chart.register(
   LineController,
@@ -265,6 +450,12 @@ Chart.register(
 const chartCanvas = ref(null)
 const showTable = ref(false)
 const pendingDeleteId = ref(null)
+const pendingEditId = ref(null)
+const editForm = ref({
+  date: '',
+  nattyWeight: null,
+  mokaWeight: null,
+})
 let chartInstance = null
 
 const MONTHS_SHORT_ES = [
@@ -290,6 +481,20 @@ const pendingDeleteRow = computed(() => {
   if (!Number.isFinite(pendingDeleteId.value)) return null
   return props.rows.find((row) => row.id === pendingDeleteId.value) ?? null
 })
+const isEditDialogOpen = computed(() => Number.isFinite(pendingEditId.value))
+const isEditingPendingRecord = computed(() => {
+  return Number.isFinite(pendingEditId.value) && props.editingId === pendingEditId.value
+})
+const isEditFormValid = computed(() => {
+  const parsedDate = parseSpanishDate(editForm.value.date)
+  return (
+    parsedDate !== null &&
+    Number.isInteger(editForm.value.nattyWeight) &&
+    editForm.value.nattyWeight > 0 &&
+    Number.isInteger(editForm.value.mokaWeight) &&
+    editForm.value.mokaWeight > 0
+  )
+})
 const isDeletingPendingRecord = computed(() => {
   return Number.isFinite(pendingDeleteId.value) && props.deletingId === pendingDeleteId.value
 })
@@ -302,8 +507,21 @@ function requestDelete(rowId) {
   pendingDeleteId.value = rowId
 }
 
+function requestEdit(row) {
+  pendingEditId.value = row.id
+  editForm.value = {
+    date: formatDateForDisplay(row.date),
+    nattyWeight: row.nattyWeight,
+    mokaWeight: row.mokaWeight,
+  }
+}
+
 function cancelDelete() {
   pendingDeleteId.value = null
+}
+
+function cancelEdit() {
+  pendingEditId.value = null
 }
 
 function confirmDelete() {
@@ -311,6 +529,25 @@ function confirmDelete() {
 
   emit('delete-row', pendingDeleteId.value)
   pendingDeleteId.value = null
+}
+
+function confirmEdit() {
+  if (!Number.isFinite(pendingEditId.value) || !isEditFormValid.value) return
+
+  const normalizedDate = normalizeDateForStorage(editForm.value.date)
+  if (!normalizedDate) return
+
+  emit('edit-row', {
+    id: pendingEditId.value,
+    payload: {
+      date: normalizedDate,
+      age: 'Pendiente',
+      nattyWeight: editForm.value.nattyWeight,
+      mokaWeight: editForm.value.mokaWeight,
+    },
+  })
+
+  pendingEditId.value = null
 }
 
 function formatDateForDisplay(value) {
@@ -328,6 +565,17 @@ function formatDateForDisplay(value) {
   }
 
   return `${day} ${MONTHS_SHORT_ES[monthIndex]} ${year}`
+}
+
+function normalizeDateForStorage(value) {
+  const parsed = parseSpanishDate(value)
+  if (!parsed) return null
+
+  const day = String(parsed.getDate()).padStart(2, '0')
+  const month = MONTHS_SHORT_ES[parsed.getMonth()]
+  const year = parsed.getFullYear()
+
+  return `${day} ${month} ${year}`
 }
 
 function getPetAgeAtDate(petKey, dateValue) {

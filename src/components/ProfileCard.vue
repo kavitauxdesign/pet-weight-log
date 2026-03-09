@@ -94,6 +94,9 @@
                 role="tooltip"
               >
                 <span>{{ birthday }}</span>
+                <span
+                  class="absolute top-full left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-x-transparent border-t-[6px] border-t-[var(--color-text-dark)]"
+                ></span>
               </div>
             </div>
 

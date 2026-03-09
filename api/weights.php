@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-API-Token');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -173,6 +173,81 @@ function handleDelete(string $dataFilePath): void
     }
 }
 
+function handlePut(string $dataFilePath): void
+{
+    if (!requireWriteToken()) {
+        return;
+    }
+
+    $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+    if ($id === false || $id === null || $id <= 0) {
+        http_response_code(422);
+        echo json_encode(['error' => 'A valid numeric id is required']);
+        return;
+    }
+
+    $rawBody = file_get_contents('php://input');
+    $body = json_decode($rawBody ?: '', true);
+
+    if (!is_array($body)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid JSON body']);
+        return;
+    }
+
+    $nattyWeight = filter_var($body['nattyWeight'] ?? null, FILTER_VALIDATE_INT);
+    $mokaWeight = filter_var($body['mokaWeight'] ?? null, FILTER_VALIDATE_INT);
+
+    if ($nattyWeight === false || $nattyWeight <= 0 || $mokaWeight === false || $mokaWeight <= 0) {
+        http_response_code(422);
+        echo json_encode(['error' => 'nattyWeight and mokaWeight must be positive integers']);
+        return;
+    }
+
+    $date = trim((string)($body['date'] ?? ''));
+    if ($date === '') {
+        http_response_code(422);
+        echo json_encode(['error' => 'date is required']);
+        return;
+    }
+
+    $age = trim((string)($body['age'] ?? ''));
+
+    try {
+        $items = readWeightHistory($dataFilePath);
+        $updatedItem = null;
+
+        foreach ($items as $index => $item) {
+            if ((int)($item['id'] ?? 0) !== $id) {
+                continue;
+            }
+
+            $updatedItem = [
+                'id' => $id,
+                'date' => $date,
+                'age' => $age !== '' ? $age : (string)($item['age'] ?? 'Pendiente'),
+                'nattyWeight' => $nattyWeight,
+                'mokaWeight' => $mokaWeight,
+            ];
+
+            $items[$index] = $updatedItem;
+            break;
+        }
+
+        if ($updatedItem === null) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Record not found']);
+            return;
+        }
+
+        writeWeightHistory($dataFilePath, $items);
+        echo json_encode(['data' => $updatedItem]);
+    } catch (Throwable $error) {
+        http_response_code(500);
+        echo json_encode(['error' => $error->getMessage()]);
+    }
+}
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if ($method === 'GET') {
@@ -187,6 +262,11 @@ if ($method === 'POST') {
 
 if ($method === 'DELETE') {
     handleDelete($dataFilePath);
+    exit;
+}
+
+if ($method === 'PUT') {
+    handlePut($dataFilePath);
     exit;
 }
 

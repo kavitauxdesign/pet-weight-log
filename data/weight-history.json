@@ -1,19 +1,5 @@
 [
     {
-        "id": 5,
-        "date": "10 nov 2025",
-        "age": "6 sem.",
-        "nattyWeight": 395,
-        "mokaWeight": 380
-    },
-    {
-        "id": 6,
-        "date": "24 nov 2025",
-        "age": "2 meses",
-        "nattyWeight": 450,
-        "mokaWeight": 435
-    },
-    {
         "id": 8,
         "date": "2026-03-09",
         "age": "Pendiente",
