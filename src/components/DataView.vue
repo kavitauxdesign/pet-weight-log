@@ -76,7 +76,7 @@
                 <button
                   type="button"
                   :disabled="deletingId === row.id"
-                  @click="emit('delete-row', row.id)"
+                  @click="requestDelete(row.id)"
                   :class="[
                     'inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500',
                     'transition hover:bg-gray-100 hover:text-gray-700',
@@ -84,7 +84,34 @@
                   ]"
                   aria-label="Borrar registro"
                 >
-                  <img class="h-4 w-4" src="/assets/trash-bin.svg" alt="" aria-hidden="true" />
+                  <svg
+                    v-if="deletingId === row.id"
+                    class="h-4 w-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    />
+                    <path
+                      class="opacity-90"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
+                    />
+                  </svg>
+                  <img
+                    v-else
+                    class="h-4 w-4"
+                    src="/assets/trash-bin.svg"
+                    alt=""
+                    aria-hidden="true"
+                  />
                 </button>
                 <span
                   :class="[
@@ -109,6 +136,78 @@
     <p class="mt-4 text-right text-sm text-[var(--color-text-secondary)]">
       Ultimo registro: {{ lastEntryDate }}
     </p>
+
+    <div
+      v-if="isDeleteDialogOpen"
+      class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirmar eliminacion de registro"
+    >
+      <div
+        class="w-full max-w-[520px] rounded-2xl bg-[var(--color-surface)] p-6 shadow-[0_12px_30px_rgba(var(--shadow-card-rgb)/0.35)]"
+      >
+        <h3 class="text-lg font-semibold text-[var(--color-text-dark)] sm:text-xl">
+          ¿Seguro que quieres eliminar este registro de peso?
+        </h3>
+
+        <div
+          v-if="pendingDeleteRow"
+          class="mt-4 rounded-xl bg-[var(--color-age-box-bg)] px-4 py-3 text-sm text-[var(--color-text-dark)]"
+        >
+          <p>{{ formatDateForDisplay(pendingDeleteRow.date) }}</p>
+          <p class="mt-1 text-[var(--color-primary-natty)]">
+            <span>Natty:</span>
+            {{ pendingDeleteRow.nattyWeight }} g
+          </p>
+          <p class="text-[var(--color-primary-moka)]">
+            <span>Moka:</span>
+            {{ pendingDeleteRow.mokaWeight }} g
+          </p>
+        </div>
+
+        <p class="mt-4 text-sm text-[var(--color-text-secondary)] sm:text-base">
+          Se eliminará del historial de las mascotas y no se podrá recuperar.
+        </p>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-[var(--color-text-dark)] transition hover:bg-gray-50"
+            :disabled="isDeletingPendingRecord"
+            @click="cancelDelete"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="rounded-xl bg-[var(--color-text-dark)] px-5 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            :disabled="isDeletingPendingRecord"
+            @click="confirmDelete"
+          >
+            <span v-if="isDeletingPendingRecord" class="inline-flex items-center gap-2">
+              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-90"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
+                />
+              </svg>
+              Eliminando...
+            </span>
+            <span v-else>Eliminar</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -165,6 +264,7 @@ Chart.register(
 
 const chartCanvas = ref(null)
 const showTable = ref(false)
+const pendingDeleteId = ref(null)
 let chartInstance = null
 
 const MONTHS_SHORT_ES = [
@@ -185,10 +285,33 @@ const MONTHS_SHORT_ES = [
 const labels = computed(() => props.rows.map((item) => getChartLabel(item)))
 const nattyData = computed(() => props.rows.map((item) => item.nattyWeight))
 const mokaData = computed(() => props.rows.map((item) => item.mokaWeight))
+const isDeleteDialogOpen = computed(() => Number.isFinite(pendingDeleteId.value))
+const pendingDeleteRow = computed(() => {
+  if (!Number.isFinite(pendingDeleteId.value)) return null
+  return props.rows.find((row) => row.id === pendingDeleteId.value) ?? null
+})
+const isDeletingPendingRecord = computed(() => {
+  return Number.isFinite(pendingDeleteId.value) && props.deletingId === pendingDeleteId.value
+})
 const lastEntryDate = computed(() => {
   if (props.rows.length === 0) return 'Sin datos'
   return formatDateForDisplay(props.rows[props.rows.length - 1].date)
 })
+
+function requestDelete(rowId) {
+  pendingDeleteId.value = rowId
+}
+
+function cancelDelete() {
+  pendingDeleteId.value = null
+}
+
+function confirmDelete() {
+  if (!Number.isFinite(pendingDeleteId.value)) return
+
+  emit('delete-row', pendingDeleteId.value)
+  pendingDeleteId.value = null
+}
 
 function formatDateForDisplay(value) {
   if (typeof value !== 'string') return value

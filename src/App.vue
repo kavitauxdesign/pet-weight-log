@@ -1,5 +1,40 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-[var(--color-body-bg)]">
+  <div class="relative flex min-h-screen flex-col bg-[var(--color-body-bg)]">
+    <Transition name="loader-fade">
+      <div
+        v-if="isInitialLoading"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(245_245_247/0.88)] backdrop-blur-[1px]"
+        role="status"
+        aria-live="polite"
+        aria-label="Cargando aplicacion"
+      >
+        <div
+          class="rounded-2xl bg-white p-4 shadow-[0_10px_25px_rgba(var(--shadow-card-rgb)/0.22)]"
+        >
+          <svg
+            class="h-7 w-7 animate-spin text-[var(--color-primary-natty)]"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path
+              class="opacity-90"
+              fill="currentColor"
+              d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
+            />
+          </svg>
+        </div>
+      </div>
+    </Transition>
+
     <header
       class="h-20 bg-[var(--color-surface)] shadow-[0_1px_2px_0_rgb(var(--shadow-card-rgb)/0.12)]"
     >
@@ -75,6 +110,7 @@ import { addWeight, deleteWeight, getWeights } from '@/services/weightService'
 
 const rows = ref([])
 const isLoading = ref(false)
+const isInitialLoading = ref(true)
 const errorMessage = ref('')
 const deletingId = ref(null)
 const petBirthdays = {
@@ -116,6 +152,7 @@ async function loadWeights() {
     errorMessage.value = error instanceof Error ? error.message : 'No se pudo cargar el historial.'
   } finally {
     isLoading.value = false
+    isInitialLoading.value = false
   }
 }
 
@@ -150,3 +187,15 @@ onMounted(() => {
   loadWeights()
 })
 </script>
+
+<style scoped>
+.loader-fade-enter-active,
+.loader-fade-leave-active {
+  transition: opacity 260ms ease;
+}
+
+.loader-fade-enter-from,
+.loader-fade-leave-to {
+  opacity: 0;
+}
+</style>
