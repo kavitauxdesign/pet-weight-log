@@ -108,7 +108,7 @@
             >
               <img
                 class="h-5 w-5 object-contain"
-                src="/assets/birthday-cake-white.svg"
+                src="/assets/birthday_cake_white.svg"
                 alt="birthday cake icon"
               />
               <span>{{ birthday }}</span>

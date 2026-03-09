@@ -33,7 +33,7 @@
           nickname="Niña peluche"
           birthday="29 septiembre 2025"
           primary_color="var(--color-primary-natty)"
-          is_dominant="true"
+          :is_dominant="true"
           :current_weight="800"
           :weight_diff="25"
         />
@@ -41,17 +41,27 @@
           name="Moka"
           photo="/assets/moka.jpg"
           breed="Abisinia"
-          nickname="Despelucha"
+          nickname="Despeluchá"
           birthday="29 septiembre 2025"
           primary_color="var(--color-primary-moka)"
           :current_weight="800"
           :weight_diff="25"
         />
       </section>
+
+      <section class="mt-6 sm:mt-8">
+        <DataView />
+      </section>
+
+      <section class="mt-6 sm:mt-8">
+        <WeightForm />
+      </section>
     </main>
   </div>
 </template>
 
 <script setup lang="js">
+import DataView from '@/components/DataView.vue'
 import ProfileCard from '@/components/ProfileCard.vue'
+import WeightForm from '@/components/WeightForm.vue'
 </script>
