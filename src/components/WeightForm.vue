@@ -8,7 +8,7 @@
     <h2 class="text-3xl font-semibold text-[var(--color-text-dark)]">Registrar Peso</h2>
 
     <div class="mt-10 flex items-center justify-center">
-      <form class="w-full max-w-[560px]" @submit.prevent="submitForm">
+      <form class="w-full max-w-[560px]" novalidate @submit.prevent="submitForm">
         <div class="grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-2">
           <WeightFormInput
             input-id="natty-weight"
@@ -63,11 +63,26 @@ const form = reactive({
   mokaWeight: null,
 })
 
+const MONTHS_SHORT_ES = [
+  'ene',
+  'feb',
+  'mar',
+  'abr',
+  'may',
+  'jun',
+  'jul',
+  'ago',
+  'sept',
+  'oct',
+  'nov',
+  'dic',
+]
+
 const isFormValid = computed(() => {
   return (
-    Number.isFinite(form.nattyWeight) &&
+    Number.isInteger(form.nattyWeight) &&
     form.nattyWeight > 0 &&
-    Number.isFinite(form.mokaWeight) &&
+    Number.isInteger(form.mokaWeight) &&
     form.mokaWeight > 0
   )
 })
@@ -76,12 +91,21 @@ function submitForm() {
   if (!isFormValid.value) return
 
   emit('submit', {
-    date: new Date().toISOString().split('T')[0],
+    date: formatDateForDisplay(new Date()),
+    age: 'Pendiente',
     nattyWeight: form.nattyWeight,
     mokaWeight: form.mokaWeight,
   })
 
   form.nattyWeight = null
   form.mokaWeight = null
+}
+
+function formatDateForDisplay(date) {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = MONTHS_SHORT_ES[date.getMonth()]
+  const year = date.getFullYear()
+
+  return `${day} ${month} ${year}`
 }
 </script>

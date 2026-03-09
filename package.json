@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "php -S localhost:8000",
+    "dev:full": "run-p dev dev:api",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "run-s lint:*",

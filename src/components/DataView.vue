@@ -15,6 +15,7 @@
         </p>
       </div>
       <button
+        v-if="!loading"
         type="button"
         @click="toggleView"
         :class="[
@@ -26,7 +27,16 @@
       </button>
     </div>
 
-    <div v-if="showTable" class="overflow-x-auto">
+    <p v-if="loading" class="mb-4 text-sm text-[var(--color-text-secondary)]">Cargando datos...</p>
+    <p v-if="errorMessage" class="mb-4 text-sm text-red-600">{{ errorMessage }}</p>
+    <p
+      v-if="!loading && props.rows.length === 0"
+      class="mb-4 text-sm text-[var(--color-text-secondary)]"
+    >
+      No hay registros todavia.
+    </p>
+
+    <div v-if="showTable && !loading && props.rows.length > 0" class="overflow-x-auto">
       <table class="min-w-full border-collapse px-4">
         <thead>
           <tr class="border-b border-gray-200 text-left">
@@ -43,7 +53,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="row in rows"
+            v-for="row in props.rows"
             :key="row.id"
             :class="[
               'cursor-default border-b border-[var(--color-age-box-bg)] odd:bg-white',
@@ -51,8 +61,12 @@
               'hover:shadow-[0_2px_8px_rgba(209,213,219,0.55)] last:border-b-0',
             ]"
           >
-            <td class="py-4 pr-6 text-sm text-[var(--color-text-dark)]">{{ row.date }}</td>
-            <td class="py-4 pr-6 text-sm text-[var(--color-text-secondary)]">{{ row.age }}</td>
+            <td class="py-4 pr-6 text-sm text-[var(--color-text-dark)]">
+              {{ formatDateForDisplay(row.date) }}
+            </td>
+            <td class="py-4 pr-6 text-sm text-[var(--color-text-secondary)]">
+              {{ getCombinedAgeForRow(row) }}
+            </td>
             <td class="py-4 pr-6 text-sm text-[var(--color-primary-natty)]">
               {{ row.nattyWeight }}
             </td>
@@ -61,9 +75,12 @@
               <div class="group relative inline-flex items-center">
                 <button
                   type="button"
+                  :disabled="deletingId === row.id"
+                  @click="emit('delete-row', row.id)"
                   :class="[
                     'inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500',
                     'transition hover:bg-gray-100 hover:text-gray-700',
+                    'disabled:cursor-not-allowed disabled:opacity-40',
                   ]"
                   aria-label="Borrar registro"
                 >
@@ -85,7 +102,7 @@
       </table>
     </div>
 
-    <div v-else class="h-[340px] w-full sm:h-[420px]">
+    <div v-else-if="!loading && props.rows.length > 0" class="h-[340px] w-full sm:h-[420px]">
       <canvas ref="chartCanvas" aria-label="Grafica de lineas de peso por edad"></canvas>
     </div>
 
@@ -96,7 +113,7 @@
 </template>
 
 <script setup lang="js">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import {
   Chart,
   Filler,
@@ -108,7 +125,32 @@ import {
   Tooltip,
   CategoryScale,
 } from 'chart.js'
-import rows from '@/data/weight-history.json'
+import { getAgeTextFromBirthday } from '@/utils/petAge'
+
+const props = defineProps({
+  rows: {
+    type: Array,
+    default: () => [],
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  errorMessage: {
+    type: String,
+    default: '',
+  },
+  deletingId: {
+    type: Number,
+    default: null,
+  },
+  petBirthdays: {
+    type: Object,
+    default: () => ({}),
+  },
+})
+
+const emit = defineEmits(['delete-row'])
 
 Chart.register(
   LineController,
@@ -125,10 +167,70 @@ const chartCanvas = ref(null)
 const showTable = ref(false)
 let chartInstance = null
 
-const labels = rows.map((item) => item.age)
-const nattyData = rows.map((item) => item.nattyWeight)
-const mokaData = rows.map((item) => item.mokaWeight)
-const lastEntryDate = rows.length > 0 ? rows[rows.length - 1].date : 'Sin datos'
+const MONTHS_SHORT_ES = [
+  'ene',
+  'feb',
+  'mar',
+  'abr',
+  'may',
+  'jun',
+  'jul',
+  'ago',
+  'sept',
+  'oct',
+  'nov',
+  'dic',
+]
+
+const labels = computed(() => props.rows.map((item) => getChartLabel(item)))
+const nattyData = computed(() => props.rows.map((item) => item.nattyWeight))
+const mokaData = computed(() => props.rows.map((item) => item.mokaWeight))
+const lastEntryDate = computed(() => {
+  if (props.rows.length === 0) return 'Sin datos'
+  return formatDateForDisplay(props.rows[props.rows.length - 1].date)
+})
+
+function formatDateForDisplay(value) {
+  if (typeof value !== 'string') return value
+
+  const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!isoMatch) return value
+
+  const year = isoMatch[1]
+  const monthIndex = Number(isoMatch[2]) - 1
+  const day = isoMatch[3]
+
+  if (monthIndex < 0 || monthIndex >= MONTHS_SHORT_ES.length) {
+    return value
+  }
+
+  return `${day} ${MONTHS_SHORT_ES[monthIndex]} ${year}`
+}
+
+function getPetAgeAtDate(petKey, dateValue) {
+  const birthday = props.petBirthdays?.[petKey]
+  if (!birthday) return null
+  return getAgeTextFromBirthday(birthday, dateValue)
+}
+
+function getCombinedAgeForRow(row) {
+  const nattyAge = getPetAgeAtDate('natty', row.date)
+  const mokaAge = getPetAgeAtDate('moka', row.date)
+
+  if (nattyAge && mokaAge && nattyAge === mokaAge) {
+    return nattyAge
+  }
+
+  if (nattyAge && mokaAge) {
+    return `Natty: ${nattyAge} | Moka: ${mokaAge}`
+  }
+
+  return nattyAge ?? mokaAge ?? row.age ?? 'Sin datos'
+}
+
+function getChartLabel(row) {
+  return getPetAgeAtDate('natty', row.date) ?? row.age ?? formatDateForDisplay(row.date)
+}
 
 function destroyChart() {
   if (chartInstance) {
@@ -138,16 +240,16 @@ function destroyChart() {
 }
 
 function renderChart() {
-  if (!chartCanvas.value) return
+  if (!chartCanvas.value || props.rows.length === 0) return
 
   chartInstance = new Chart(chartCanvas.value, {
     type: 'line',
     data: {
-      labels,
+      labels: labels.value,
       datasets: [
         {
           label: 'Natty',
-          data: nattyData,
+          data: nattyData.value,
           borderColor: '#5b4a99',
           backgroundColor: 'rgba(91, 74, 153, 0.14)',
           pointBackgroundColor: '#5b4a99',
@@ -159,7 +261,7 @@ function renderChart() {
         },
         {
           label: 'Moka',
-          data: mokaData,
+          data: mokaData.value,
           borderColor: '#d97b9e',
           backgroundColor: 'rgba(217, 123, 158, 0.14)',
           pointBackgroundColor: '#d97b9e',
@@ -235,10 +337,6 @@ function toggleView() {
   showTable.value = !showTable.value
 }
 
-onMounted(() => {
-  renderChart()
-})
-
 watch(showTable, async (isTableVisible) => {
   if (isTableVisible) {
     destroyChart()
@@ -248,6 +346,18 @@ watch(showTable, async (isTableVisible) => {
   await nextTick()
   renderChart()
 })
+
+watch(
+  () => props.rows,
+  async () => {
+    if (showTable.value) return
+
+    await nextTick()
+    destroyChart()
+    renderChart()
+  },
+  { deep: true, immediate: true },
+)
 
 onBeforeUnmount(() => {
   destroyChart()

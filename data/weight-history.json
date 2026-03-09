@@ -1,0 +1,65 @@
+[
+    {
+        "id": 1,
+        "date": "06 oct 2025",
+        "age": "1 sem.",
+        "nattyWeight": 250,
+        "mokaWeight": 240
+    },
+    {
+        "id": 2,
+        "date": "13 oct 2025",
+        "age": "2 sem.",
+        "nattyWeight": 280,
+        "mokaWeight": 270
+    },
+    {
+        "id": 3,
+        "date": "20 oct 2025",
+        "age": "3 sem.",
+        "nattyWeight": 310,
+        "mokaWeight": 295
+    },
+    {
+        "id": 4,
+        "date": "27 oct 2025",
+        "age": "4 sem.",
+        "nattyWeight": 340,
+        "mokaWeight": 325
+    },
+    {
+        "id": 5,
+        "date": "10 nov 2025",
+        "age": "6 sem.",
+        "nattyWeight": 395,
+        "mokaWeight": 380
+    },
+    {
+        "id": 6,
+        "date": "24 nov 2025",
+        "age": "2 meses",
+        "nattyWeight": 450,
+        "mokaWeight": 435
+    },
+    {
+        "id": 7,
+        "date": "08 dic 2025",
+        "age": "2 meses 1 sem.",
+        "nattyWeight": 510,
+        "mokaWeight": 495
+    },
+    {
+        "id": 8,
+        "date": "2026-03-09",
+        "age": "Pendiente",
+        "nattyWeight": 400,
+        "mokaWeight": 500
+    },
+    {
+        "id": 11,
+        "date": "09 mar 2026",
+        "age": "Pendiente",
+        "nattyWeight": 905,
+        "mokaWeight": 999
+    }
+]
