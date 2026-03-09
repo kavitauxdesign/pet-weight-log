@@ -11,21 +11,14 @@
       <form class="w-full max-w-[560px]" novalidate @submit.prevent="submitForm">
         <div class="grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-2">
           <WeightFormInput
-            input-id="natty-weight"
-            v-model="form.nattyWeight"
-            label="Peso de Natty (g)"
-            label-color="var(--color-primary-natty)"
-            pet-name="Natty"
-            photo="/assets/natty-avatar-icon.png"
-          />
-
-          <WeightFormInput
-            input-id="moka-weight"
-            v-model="form.mokaWeight"
-            label="Peso de Moka (g)"
-            label-color="var(--color-primary-moka)"
-            pet-name="Moka"
-            photo="/assets/moka-avatar-icon.png"
+            v-for="pet in props.pets"
+            :key="pet.id"
+            :input-id="`${pet.id}-weight`"
+            v-model="form[pet.weightKey]"
+            :label="`Peso de ${pet.name} (g)`"
+            :label-color="pet.primaryColor"
+            :pet-name="pet.name"
+            :photo="pet.formPhoto ?? pet.photo"
           />
         </div>
 
@@ -55,57 +48,43 @@
 <script setup lang="js">
 import { computed, reactive } from 'vue'
 import WeightFormInput from '@/components/WeightFormInput.vue'
+import { formatDateForDisplay } from '@/utils/petAge'
+
+const props = defineProps({
+  pets: {
+    type: Array,
+    default: () => [],
+  },
+})
 
 const emit = defineEmits(['submit'])
 
-const form = reactive({
-  nattyWeight: null,
-  mokaWeight: null,
-})
-
-const MONTHS_SHORT_ES = [
-  'ene',
-  'feb',
-  'mar',
-  'abr',
-  'may',
-  'jun',
-  'jul',
-  'ago',
-  'sept',
-  'oct',
-  'nov',
-  'dic',
-]
+const form = reactive(Object.fromEntries(props.pets.map((pet) => [pet.weightKey, null])))
 
 const isFormValid = computed(() => {
-  return (
-    Number.isInteger(form.nattyWeight) &&
-    form.nattyWeight > 0 &&
-    Number.isInteger(form.mokaWeight) &&
-    form.mokaWeight > 0
-  )
+  if (props.pets.length === 0) return false
+
+  return props.pets.every((pet) => {
+    const value = form[pet.weightKey]
+    return Number.isInteger(value) && value > 0
+  })
 })
 
 function submitForm() {
   if (!isFormValid.value) return
 
+  const payloadWeights = Object.fromEntries(
+    props.pets.map((pet) => [pet.weightKey, form[pet.weightKey]]),
+  )
+
   emit('submit', {
     date: formatDateForDisplay(new Date()),
     age: 'Pendiente',
-    nattyWeight: form.nattyWeight,
-    mokaWeight: form.mokaWeight,
+    ...payloadWeights,
   })
 
-  form.nattyWeight = null
-  form.mokaWeight = null
-}
-
-function formatDateForDisplay(date) {
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = MONTHS_SHORT_ES[date.getMonth()]
-  const year = date.getFullYear()
-
-  return `${day} ${month} ${year}`
+  props.pets.forEach((pet) => {
+    form[pet.weightKey] = null
+  })
 }
 </script>

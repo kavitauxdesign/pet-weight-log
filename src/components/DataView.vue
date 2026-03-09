@@ -45,8 +45,14 @@
           <tr class="border-b border-gray-200 text-left">
             <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">Fecha</th>
             <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">Edad</th>
-            <th class="p-3 text-sm font-medium text-[var(--color-primary-natty)]">Natty (g)</th>
-            <th class="p-3 text-sm font-medium text-[var(--color-primary-moka)]">Moka (g)</th>
+            <th
+              v-for="pet in petColumns"
+              :key="`head-${pet.id}`"
+              class="p-3 text-sm font-medium"
+              :style="{ color: pet.primaryColor }"
+            >
+              {{ pet.name }} (g)
+            </th>
             <th class="p-3 text-right text-sm font-medium text-[var(--color-text-secondary)]">
               Accion
             </th>
@@ -68,144 +74,78 @@
             <td class="p-3 text-sm text-[var(--color-text-secondary)]">
               {{ getCombinedAgeForRow(row) }}
             </td>
-            <td class="p-3 text-sm text-[var(--color-primary-natty)]">
-              {{ row.nattyWeight }}
+            <td
+              v-for="pet in petColumns"
+              :key="`weight-${row.id}-${pet.id}`"
+              class="p-3 text-sm"
+              :style="{ color: pet.primaryColor }"
+            >
+              {{ getRowWeight(row, pet.weightKey) }}
             </td>
-            <td class="p-3 text-sm text-[var(--color-primary-moka)]">{{ row.mokaWeight }}</td>
             <td class="p-3 text-right">
               <div class="inline-flex items-center gap-0.5">
-                <div class="group relative inline-flex">
-                  <button
-                    type="button"
-                    :disabled="deletingId === row.id || editingId === row.id"
-                    @click="requestEdit(row)"
-                    :class="[
-                      'inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500',
-                      'transition hover:bg-gray-100 hover:text-gray-700',
-                      'disabled:cursor-not-allowed disabled:opacity-40',
-                    ]"
-                    aria-label="Editar registro"
-                  >
-                    <svg
-                      v-if="editingId === row.id"
-                      class="h-4 w-4 animate-spin"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      />
-                      <path
-                        class="opacity-90"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
-                      />
-                    </svg>
-                    <svg v-else class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M4 20h4l10-10-4-4L4 16v4Z"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M12 6l4 4"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </button>
-                  <span
-                    class="pointer-events-none absolute bottom-full left-1/2 z-[60] mb-2 -translate-x-1/2 rounded-md bg-[var(--color-text-dark)] px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100"
-                  >
-                    Editar
-                    <span
-                      class="absolute top-full left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-x-transparent border-t-[6px] border-t-[var(--color-text-dark)]"
-                    ></span>
-                  </span>
-                </div>
+                <DataViewActionButton
+                  :disabled="deletingId === row.id || editingId === row.id"
+                  :loading="editingId === row.id"
+                  aria-label="Editar registro"
+                  tooltip="Editar"
+                  @press="requestEdit(row)"
+                >
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4Z"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M12 6l4 4"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </DataViewActionButton>
 
-                <div class="group relative inline-flex">
-                  <button
-                    type="button"
-                    :disabled="deletingId === row.id || editingId === row.id"
-                    @click="requestDelete(row.id)"
-                    :class="[
-                      'inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500',
-                      'transition hover:bg-gray-100 hover:text-gray-700',
-                      'disabled:cursor-not-allowed disabled:opacity-40',
-                    ]"
-                    aria-label="Borrar registro"
-                  >
-                    <svg
-                      v-if="deletingId === row.id"
-                      class="h-4 w-4 animate-spin"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      />
-                      <path
-                        class="opacity-90"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"
-                      />
-                    </svg>
-                    <svg v-else class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M4 7h16"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                      />
-                      <path
-                        d="M7.5 7.5l.7 11.2A1.5 1.5 0 0 0 9.7 20h4.6a1.5 1.5 0 0 0 1.5-1.3l.7-11.2"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                      />
-                      <path
-                        d="M10 10.5v6"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M14 10.5v6"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </button>
-                  <span
-                    class="pointer-events-none absolute bottom-full left-1/2 z-[60] mb-2 -translate-x-1/2 rounded-md bg-[var(--color-text-dark)] px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100"
-                  >
-                    Borrar
-                    <span
-                      class="absolute top-full left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-x-transparent border-t-[6px] border-t-[var(--color-text-dark)]"
-                    ></span>
-                  </span>
-                </div>
+                <DataViewActionButton
+                  :disabled="deletingId === row.id || editingId === row.id"
+                  :loading="deletingId === row.id"
+                  aria-label="Borrar registro"
+                  tooltip="Borrar"
+                  @press="requestDelete(row.id)"
+                >
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 7h16"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    />
+                    <path
+                      d="M7.5 7.5l.7 11.2A1.5 1.5 0 0 0 9.7 20h4.6a1.5 1.5 0 0 0 1.5-1.3l.7-11.2"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    />
+                    <path
+                      d="M10 10.5v6"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M14 10.5v6"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </DataViewActionButton>
               </div>
             </td>
           </tr>
@@ -240,13 +180,14 @@
           class="mt-4 rounded-xl bg-[var(--color-age-box-bg)] px-4 py-3 text-sm text-[var(--color-text-dark)]"
         >
           <p>{{ formatDateForDisplay(pendingDeleteRow.date) }}</p>
-          <p class="mt-1 text-[var(--color-primary-natty)]">
-            <span>Natty:</span>
-            {{ pendingDeleteRow.nattyWeight }} g
-          </p>
-          <p class="text-[var(--color-primary-moka)]">
-            <span>Moka:</span>
-            {{ pendingDeleteRow.mokaWeight }} g
+          <p
+            v-for="pet in petColumns"
+            :key="`delete-${pet.id}`"
+            class="mt-1"
+            :style="{ color: pet.primaryColor }"
+          >
+            <span>{{ pet.name }}:</span>
+            {{ getRowWeight(pendingDeleteRow, pet.weightKey) }} g
           </p>
         </div>
 
@@ -257,7 +198,7 @@
         <div class="mt-6 flex justify-end gap-3">
           <button
             type="button"
-            class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-[var(--color-text-dark)] transition hover:bg-gray-50"
+            class="btn-secondary"
             :disabled="isDeletingPendingRecord"
             @click="cancelDelete"
           >
@@ -316,37 +257,22 @@
               v-model="editForm.date"
               type="text"
               placeholder="08 dic 2025"
-              class="h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-[var(--color-text-dark)] outline-none transition focus:border-gray-400"
+              class="input-field"
             />
           </div>
 
-          <div>
-            <label class="mb-2 block text-sm font-medium text-[var(--color-primary-natty)]"
-              >Natty (g)</label
+          <div v-for="pet in petColumns" :key="`edit-${pet.id}`">
+            <label class="mb-2 block text-sm font-medium" :style="{ color: pet.primaryColor }"
+              >{{ pet.name }} (g)</label
             >
             <input
-              v-model.number="editForm.nattyWeight"
+              v-model.number="editForm.weights[pet.weightKey]"
               type="number"
               inputmode="numeric"
               min="1"
               step="100"
               placeholder="800"
-              class="h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-[var(--color-text-dark)] outline-none transition focus:border-gray-400"
-            />
-          </div>
-
-          <div>
-            <label class="mb-2 block text-sm font-medium text-[var(--color-primary-moka)]"
-              >Moka (g)</label
-            >
-            <input
-              v-model.number="editForm.mokaWeight"
-              type="number"
-              inputmode="numeric"
-              min="1"
-              step="100"
-              placeholder="800"
-              class="h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-[var(--color-text-dark)] outline-none transition focus:border-gray-400"
+              class="input-field"
             />
           </div>
         </div>
@@ -354,7 +280,7 @@
         <div class="mt-6 flex justify-end gap-3">
           <button
             type="button"
-            class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-[var(--color-text-dark)] transition hover:bg-gray-50"
+            class="btn-secondary"
             :disabled="isEditingPendingRecord"
             @click="cancelEdit"
           >
@@ -405,7 +331,13 @@ import {
   Tooltip,
   CategoryScale,
 } from 'chart.js'
-import { getAgeTextFromBirthday, parseSpanishDate } from '@/utils/petAge'
+import DataViewActionButton from '@/components/DataViewActionButton.vue'
+import {
+  formatDateForDisplay,
+  getAgeTextFromBirthday,
+  normalizeDateForStorage,
+  parseSpanishDate,
+} from '@/utils/petAge'
 
 const props = defineProps({
   rows: {
@@ -427,6 +359,10 @@ const props = defineProps({
   editingId: {
     type: Number,
     default: null,
+  },
+  pets: {
+    type: Array,
+    default: () => [],
   },
   petBirthdays: {
     type: Object,
@@ -453,29 +389,20 @@ const pendingDeleteId = ref(null)
 const pendingEditId = ref(null)
 const editForm = ref({
   date: '',
-  nattyWeight: null,
-  mokaWeight: null,
+  weights: {},
 })
 let chartInstance = null
 
-const MONTHS_SHORT_ES = [
-  'ene',
-  'feb',
-  'mar',
-  'abr',
-  'may',
-  'jun',
-  'jul',
-  'ago',
-  'sept',
-  'oct',
-  'nov',
-  'dic',
-]
-
+const petColumns = computed(() => {
+  return props.pets.map((pet) => ({
+    id: pet.id,
+    name: pet.name,
+    weightKey: pet.weightKey,
+    primaryColor: pet.primaryColor,
+  }))
+})
+const primaryPetId = computed(() => petColumns.value[0]?.id ?? null)
 const labels = computed(() => props.rows.map((item) => getChartLabel(item)))
-const nattyData = computed(() => props.rows.map((item) => item.nattyWeight))
-const mokaData = computed(() => props.rows.map((item) => item.mokaWeight))
 const isDeleteDialogOpen = computed(() => Number.isFinite(pendingDeleteId.value))
 const pendingDeleteRow = computed(() => {
   if (!Number.isFinite(pendingDeleteId.value)) return null
@@ -487,13 +414,16 @@ const isEditingPendingRecord = computed(() => {
 })
 const isEditFormValid = computed(() => {
   const parsedDate = parseSpanishDate(editForm.value.date)
-  return (
-    parsedDate !== null &&
-    Number.isInteger(editForm.value.nattyWeight) &&
-    editForm.value.nattyWeight > 0 &&
-    Number.isInteger(editForm.value.mokaWeight) &&
-    editForm.value.mokaWeight > 0
-  )
+  const hasPets = petColumns.value.length > 0
+
+  if (!parsedDate || !hasPets) {
+    return false
+  }
+
+  return petColumns.value.every((pet) => {
+    const value = editForm.value.weights[pet.weightKey]
+    return Number.isInteger(value) && value > 0
+  })
 })
 const isDeletingPendingRecord = computed(() => {
   return Number.isFinite(pendingDeleteId.value) && props.deletingId === pendingDeleteId.value
@@ -509,10 +439,14 @@ function requestDelete(rowId) {
 
 function requestEdit(row) {
   pendingEditId.value = row.id
+
+  const weights = Object.fromEntries(
+    petColumns.value.map((pet) => [pet.weightKey, getRowWeight(row, pet.weightKey)]),
+  )
+
   editForm.value = {
     date: formatDateForDisplay(row.date),
-    nattyWeight: row.nattyWeight,
-    mokaWeight: row.mokaWeight,
+    weights,
   }
 }
 
@@ -542,40 +476,11 @@ function confirmEdit() {
     payload: {
       date: normalizedDate,
       age: 'Pendiente',
-      nattyWeight: editForm.value.nattyWeight,
-      mokaWeight: editForm.value.mokaWeight,
+      ...editForm.value.weights,
     },
   })
 
   pendingEditId.value = null
-}
-
-function formatDateForDisplay(value) {
-  if (typeof value !== 'string') return value
-
-  const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
-  if (!isoMatch) return value
-
-  const year = isoMatch[1]
-  const monthIndex = Number(isoMatch[2]) - 1
-  const day = isoMatch[3]
-
-  if (monthIndex < 0 || monthIndex >= MONTHS_SHORT_ES.length) {
-    return value
-  }
-
-  return `${day} ${MONTHS_SHORT_ES[monthIndex]} ${year}`
-}
-
-function normalizeDateForStorage(value) {
-  const parsed = parseSpanishDate(value)
-  if (!parsed) return null
-
-  const day = String(parsed.getDate()).padStart(2, '0')
-  const month = MONTHS_SHORT_ES[parsed.getMonth()]
-  const year = parsed.getFullYear()
-
-  return `${day} ${month} ${year}`
 }
 
 function getPetAgeAtDate(petKey, dateValue) {
@@ -585,22 +490,73 @@ function getPetAgeAtDate(petKey, dateValue) {
 }
 
 function getCombinedAgeForRow(row) {
-  const nattyAge = getPetAgeAtDate('natty', row.date)
-  const mokaAge = getPetAgeAtDate('moka', row.date)
+  const availableAges = petColumns.value
+    .map((pet) => ({
+      name: pet.name,
+      age: getPetAgeAtDate(pet.id, row.date),
+    }))
+    .filter((item) => Boolean(item.age))
 
-  if (nattyAge && mokaAge && nattyAge === mokaAge) {
-    return nattyAge
+  if (availableAges.length === 0) {
+    return row.age ?? 'Sin datos'
   }
 
-  if (nattyAge && mokaAge) {
-    return `Natty: ${nattyAge} | Moka: ${mokaAge}`
+  const firstAge = availableAges[0].age
+  const allMatch = availableAges.every((item) => item.age === firstAge)
+
+  if (allMatch) {
+    return firstAge
   }
 
-  return nattyAge ?? mokaAge ?? row.age ?? 'Sin datos'
+  return availableAges.map((item) => `${item.name}: ${item.age}`).join(' | ')
 }
 
 function getChartLabel(row) {
-  return getPetAgeAtDate('natty', row.date) ?? row.age ?? formatDateForDisplay(row.date)
+  if (primaryPetId.value) {
+    return (
+      getPetAgeAtDate(primaryPetId.value, row.date) ?? row.age ?? formatDateForDisplay(row.date)
+    )
+  }
+
+  return row.age ?? formatDateForDisplay(row.date)
+}
+
+function getRowWeight(row, weightKey) {
+  const value = Number(row?.[weightKey])
+  return Number.isFinite(value) ? value : 0
+}
+
+function resolveColor(color, fallback = '#6b7280') {
+  if (typeof color !== 'string') return fallback
+
+  const trimmed = color.trim()
+  const cssVarMatch = trimmed.match(/^var\((--[^)]+)\)$/)
+  if (!cssVarMatch) return trimmed
+
+  const resolved = getComputedStyle(document.documentElement)
+    .getPropertyValue(cssVarMatch[1])
+    .trim()
+  return resolved || fallback
+}
+
+function withOpacity(color, alpha) {
+  const hexMatch = color.match(/^#([\da-f]{3}|[\da-f]{6})$/i)
+  if (!hexMatch) return color
+
+  let hex = hexMatch[1]
+  if (hex.length === 3) {
+    hex = hex
+      .split('')
+      .map((char) => char + char)
+      .join('')
+  }
+
+  const intValue = Number.parseInt(hex, 16)
+  const r = (intValue >> 16) & 255
+  const g = (intValue >> 8) & 255
+  const b = intValue & 255
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
 function destroyChart() {
@@ -613,36 +569,29 @@ function destroyChart() {
 function renderChart() {
   if (!chartCanvas.value || props.rows.length === 0) return
 
+  const chartLabelColor = resolveColor('var(--color-text-dark)', '#1e2c48')
+  const chartTickColor = resolveColor('var(--color-text-secondary)', '#99a1af')
+  const chartGridColor = withOpacity(resolveColor('var(--color-age-box-bg)', '#f5f5f7'), 0.9)
+
   chartInstance = new Chart(chartCanvas.value, {
     type: 'line',
     data: {
       labels: labels.value,
-      datasets: [
-        {
-          label: 'Natty',
-          data: nattyData.value,
-          borderColor: '#5b4a99',
-          backgroundColor: 'rgba(91, 74, 153, 0.14)',
-          pointBackgroundColor: '#5b4a99',
+      datasets: petColumns.value.map((pet) => {
+        const borderColor = resolveColor(pet.primaryColor)
+        return {
+          label: pet.name,
+          data: props.rows.map((item) => getRowWeight(item, pet.weightKey)),
+          borderColor,
+          backgroundColor: withOpacity(borderColor, 0.14),
+          pointBackgroundColor: borderColor,
           borderWidth: 2,
           pointRadius: 3,
           pointHoverRadius: 4,
           tension: 0.25,
           fill: false,
-        },
-        {
-          label: 'Moka',
-          data: mokaData.value,
-          borderColor: '#d97b9e',
-          backgroundColor: 'rgba(217, 123, 158, 0.14)',
-          pointBackgroundColor: '#d97b9e',
-          borderWidth: 2,
-          pointRadius: 3,
-          pointHoverRadius: 4,
-          tension: 0.25,
-          fill: false,
-        },
-      ],
+        }
+      }),
     },
     options: {
       responsive: true,
@@ -655,7 +604,7 @@ function renderChart() {
         legend: {
           position: 'bottom',
           labels: {
-            color: '#6b7280',
+            color: chartLabelColor,
             usePointStyle: true,
             pointStyle: 'line',
           },
@@ -673,29 +622,29 @@ function renderChart() {
           title: {
             display: true,
             text: 'Edad',
-            color: '#6b7280',
+            color: chartLabelColor,
           },
           ticks: {
-            color: '#9ca3af',
+            color: chartTickColor,
           },
           grid: {
-            color: '#f1f5f9',
+            color: chartGridColor,
           },
         },
         y: {
           title: {
             display: true,
             text: 'Peso (g)',
-            color: '#6b7280',
+            color: chartLabelColor,
           },
           ticks: {
-            color: '#9ca3af',
+            color: chartTickColor,
             callback(value) {
               return `${value} g`
             },
           },
           grid: {
-            color: '#f1f5f9',
+            color: chartGridColor,
           },
           beginAtZero: true,
         },

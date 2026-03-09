@@ -9,6 +9,7 @@
     "dev:full": "run-p dev dev:api",
     "build": "vite build",
     "preview": "vite preview",
+    "e2e:data": "node scripts/e2e-data-test.mjs",
     "lint": "run-s lint:*",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",

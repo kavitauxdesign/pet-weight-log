@@ -85,7 +85,9 @@
             >
               PetWeight
             </h1>
-            <p class="text-[15px] leading-[14px] text-[var(--color-text-secondary)] sm:text-lg sm:leading-5">
+            <p
+              class="text-[15px] leading-[14px] text-[var(--color-text-secondary)] sm:text-lg sm:leading-5"
+            >
               Seguimiento de peso de mascotas
             </p>
           </div>
@@ -96,26 +98,17 @@
     <main class="mx-auto w-full max-w-[1100px] flex-1 px-4 py-6 sm:px-6 sm:py-8">
       <section class="mx-auto flex w-full flex-col gap-6 sm:flex-row sm:justify-between">
         <ProfileCard
-          name="Natty"
-          photo="/assets/natty-avatar-white.jpg"
-          back_photo="/assets/natty.jpg"
-          breed="Americana"
-          nickname="Niña peluche"
-          :birthday="petBirthdays.natty"
-          primary_color="var(--color-primary-natty)"
-          :current_weight="petStats.natty.currentWeight"
-          :weight_diff="petStats.natty.weightDiff"
-        />
-        <ProfileCard
-          name="Moka"
-          photo="/assets/moka-avatar-white.jpg"
-          back_photo="/assets/moka.jpg"
-          breed="Abisinia"
-          nickname="Despeluchá"
-          :birthday="petBirthdays.moka"
-          primary_color="var(--color-primary-moka)"
-          :current_weight="petStats.moka.currentWeight"
-          :weight_diff="petStats.moka.weightDiff"
+          v-for="pet in pets"
+          :key="pet.id"
+          :name="pet.name"
+          :photo="pet.photo"
+          :back_photo="pet.backPhoto"
+          :breed="pet.breed"
+          :nickname="pet.nickname"
+          :birthday="pet.birthday"
+          :primary_color="pet.primaryColor"
+          :current_weight="petStats[pet.id]?.currentWeight ?? 800"
+          :weight_diff="petStats[pet.id]?.weightDiff ?? 0"
         />
       </section>
 
@@ -126,6 +119,7 @@
           :error-message="errorMessage"
           :deleting-id="deletingId"
           :editing-id="editingId"
+          :pets="pets"
           :pet-birthdays="petBirthdays"
           @delete-row="handleDeleteRow"
           @edit-row="handleEditRow"
@@ -133,7 +127,7 @@
       </section>
 
       <section class="mt-6 sm:mt-8">
-        <WeightForm @submit="handleSubmit" />
+        <WeightForm :pets="pets" @submit="handleSubmit" />
       </section>
     </main>
   </div>
@@ -144,6 +138,7 @@ import { computed, onMounted, ref } from 'vue'
 import DataView from '@/components/DataView.vue'
 import ProfileCard from '@/components/ProfileCard.vue'
 import WeightForm from '@/components/WeightForm.vue'
+import pets from '@/data/pets.json'
 import { addWeight, deleteWeight, getWeights, updateWeight } from '@/services/weightService'
 
 const rows = ref([])
@@ -155,10 +150,7 @@ const editingId = ref(null)
 const toastMessage = ref('')
 const toastType = ref('')
 let toastTimer = null
-const petBirthdays = {
-  natty: '29 septiembre 2025',
-  moka: '29 septiembre 2025',
-}
+const petBirthdays = Object.fromEntries(pets.map((pet) => [pet.id, pet.birthday]))
 
 const petStats = computed(() => {
   const orderedRows = [...rows.value].sort((a, b) => Number(a.id) - Number(b.id))
@@ -178,10 +170,7 @@ const petStats = computed(() => {
     }
   }
 
-  return {
-    natty: buildStat('nattyWeight'),
-    moka: buildStat('mokaWeight'),
-  }
+  return Object.fromEntries(pets.map((pet) => [pet.id, buildStat(pet.weightKey)]))
 })
 
 async function loadWeights() {

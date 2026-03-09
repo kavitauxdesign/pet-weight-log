@@ -13,10 +13,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $dataFilePath = dirname(__DIR__) . '/data/weight-history.json';
+$petsConfigPath = dirname(__DIR__) . '/src/data/pets.json';
 
 if (!file_exists($dataFilePath)) {
     http_response_code(500);
     echo json_encode(['error' => 'Data file not found']);
+    exit;
+}
+
+if (!file_exists($petsConfigPath)) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Pets config file not found']);
     exit;
 }
 
@@ -58,6 +65,62 @@ function nextId(array $items): int
     return max($ids) + 1;
 }
 
+function readPetWeightKeys(string $path): array
+{
+    $raw = file_get_contents($path);
+    if ($raw === false) {
+        throw new RuntimeException('Failed to read pets config file');
+    }
+
+    $decoded = json_decode($raw, true);
+    if (!is_array($decoded)) {
+        throw new RuntimeException('Pets config has invalid JSON');
+    }
+
+    $keys = [];
+
+    foreach ($decoded as $pet) {
+        if (!is_array($pet)) {
+            continue;
+        }
+
+        $weightKey = trim((string)($pet['weightKey'] ?? ''));
+        if ($weightKey === '') {
+            continue;
+        }
+
+        $keys[] = $weightKey;
+    }
+
+    $uniqueKeys = array_values(array_unique($keys));
+
+    if ($uniqueKeys === []) {
+        throw new RuntimeException('Pets config must include at least one weightKey');
+    }
+
+    return $uniqueKeys;
+}
+
+function extractValidatedWeights(array $body, array $weightKeys): ?array
+{
+    $weights = [];
+
+    foreach ($weightKeys as $weightKey) {
+        $parsed = filter_var($body[$weightKey] ?? null, FILTER_VALIDATE_INT);
+        if ($parsed === false || $parsed <= 0) {
+            http_response_code(422);
+            echo json_encode([
+                'error' => sprintf('All weight keys must be positive integers: %s', implode(', ', $weightKeys)),
+            ]);
+            return null;
+        }
+
+        $weights[$weightKey] = $parsed;
+    }
+
+    return $weights;
+}
+
 function handleGet(string $dataFilePath): void
 {
     try {
@@ -86,7 +149,7 @@ function requireWriteToken(): bool
     return true;
 }
 
-function handlePost(string $dataFilePath): void
+function handlePost(string $dataFilePath, array $weightKeys): void
 {
     if (!requireWriteToken()) {
         return;
@@ -101,12 +164,8 @@ function handlePost(string $dataFilePath): void
         return;
     }
 
-    $nattyWeight = filter_var($body['nattyWeight'] ?? null, FILTER_VALIDATE_INT);
-    $mokaWeight = filter_var($body['mokaWeight'] ?? null, FILTER_VALIDATE_INT);
-
-    if ($nattyWeight === false || $nattyWeight <= 0 || $mokaWeight === false || $mokaWeight <= 0) {
-        http_response_code(422);
-        echo json_encode(['error' => 'nattyWeight and mokaWeight must be positive integers']);
+    $weights = extractValidatedWeights($body, $weightKeys);
+    if ($weights === null) {
         return;
     }
 
@@ -126,9 +185,9 @@ function handlePost(string $dataFilePath): void
             'id' => nextId($items),
             'date' => $date,
             'age' => $age,
-            'nattyWeight' => $nattyWeight,
-            'mokaWeight' => $mokaWeight,
         ];
+
+        $newItem = array_merge($newItem, $weights);
 
         $items[] = $newItem;
         writeWeightHistory($dataFilePath, $items);
@@ -173,7 +232,7 @@ function handleDelete(string $dataFilePath): void
     }
 }
 
-function handlePut(string $dataFilePath): void
+function handlePut(string $dataFilePath, array $weightKeys): void
 {
     if (!requireWriteToken()) {
         return;
@@ -195,12 +254,8 @@ function handlePut(string $dataFilePath): void
         return;
     }
 
-    $nattyWeight = filter_var($body['nattyWeight'] ?? null, FILTER_VALIDATE_INT);
-    $mokaWeight = filter_var($body['mokaWeight'] ?? null, FILTER_VALIDATE_INT);
-
-    if ($nattyWeight === false || $nattyWeight <= 0 || $mokaWeight === false || $mokaWeight <= 0) {
-        http_response_code(422);
-        echo json_encode(['error' => 'nattyWeight and mokaWeight must be positive integers']);
+    $weights = extractValidatedWeights($body, $weightKeys);
+    if ($weights === null) {
         return;
     }
 
@@ -226,9 +281,9 @@ function handlePut(string $dataFilePath): void
                 'id' => $id,
                 'date' => $date,
                 'age' => $age !== '' ? $age : (string)($item['age'] ?? 'Pendiente'),
-                'nattyWeight' => $nattyWeight,
-                'mokaWeight' => $mokaWeight,
             ];
+
+            $updatedItem = array_merge($updatedItem, $weights);
 
             $items[$index] = $updatedItem;
             break;
@@ -250,13 +305,21 @@ function handlePut(string $dataFilePath): void
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
+try {
+    $weightKeys = readPetWeightKeys($petsConfigPath);
+} catch (Throwable $error) {
+    http_response_code(500);
+    echo json_encode(['error' => $error->getMessage()]);
+    exit;
+}
+
 if ($method === 'GET') {
     handleGet($dataFilePath);
     exit;
 }
 
 if ($method === 'POST') {
-    handlePost($dataFilePath);
+    handlePost($dataFilePath, $weightKeys);
     exit;
 }
 
@@ -266,7 +329,7 @@ if ($method === 'DELETE') {
 }
 
 if ($method === 'PUT') {
-    handlePut($dataFilePath);
+    handlePut($dataFilePath, $weightKeys);
     exit;
 }
 

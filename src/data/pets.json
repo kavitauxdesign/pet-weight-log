@@ -1,0 +1,26 @@
+[
+  {
+    "id": "natty",
+    "name": "Natty",
+    "breed": "Cobaya Americana",
+    "nickname": "Niña peluche",
+    "birthday": "29 septiembre 2025",
+    "primaryColor": "var(--color-primary-natty)",
+    "photo": "/assets/natty-avatar-white.jpg",
+    "formPhoto": "/assets/natty-avatar-icon.png",
+    "backPhoto": "/assets/natty.jpg",
+    "weightKey": "nattyWeight"
+  },
+  {
+    "id": "moka",
+    "name": "Moka",
+    "breed": "Cobaya Abisinia",
+    "nickname": "Despeluchá",
+    "birthday": "29 septiembre 2025",
+    "primaryColor": "var(--color-primary-moka)",
+    "photo": "/assets/moka-avatar-white.jpg",
+    "formPhoto": "/assets/moka-avatar-icon.png",
+    "backPhoto": "/assets/moka.jpg",
+    "weightKey": "mokaWeight"
+  }
+]

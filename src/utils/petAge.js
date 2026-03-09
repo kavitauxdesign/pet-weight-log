@@ -27,6 +27,21 @@ const spanishMonthMap = {
   diciembre: 11,
 }
 
+const MONTHS_SHORT_ES = [
+  'ene',
+  'feb',
+  'mar',
+  'abr',
+  'may',
+  'jun',
+  'jul',
+  'ago',
+  'sept',
+  'oct',
+  'nov',
+  'dic',
+]
+
 function normalizeToDateOnly(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate())
 }
@@ -87,6 +102,49 @@ export function parseSpanishDate(value) {
   }
 
   return date
+}
+
+export function formatDateForDisplay(value) {
+  if (value instanceof Date) {
+    return formatDateToSpanishShort(value)
+  }
+
+  if (typeof value !== 'string') {
+    return value
+  }
+
+  const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!isoMatch) {
+    return value
+  }
+
+  const year = isoMatch[1]
+  const monthIndex = Number(isoMatch[2]) - 1
+  const day = isoMatch[3]
+
+  if (monthIndex < 0 || monthIndex >= MONTHS_SHORT_ES.length) {
+    return value
+  }
+
+  return `${day} ${MONTHS_SHORT_ES[monthIndex]} ${year}`
+}
+
+export function formatDateToSpanishShort(value) {
+  const parsedDate = parseSpanishDate(value)
+  if (!parsedDate) return ''
+
+  const day = String(parsedDate.getDate()).padStart(2, '0')
+  const month = MONTHS_SHORT_ES[parsedDate.getMonth()]
+  const year = parsedDate.getFullYear()
+
+  return `${day} ${month} ${year}`
+}
+
+export function normalizeDateForStorage(value) {
+  const parsedDate = parseSpanishDate(value)
+  if (!parsedDate) return null
+
+  return formatDateToSpanishShort(parsedDate)
 }
 
 function addYears(date, amount) {

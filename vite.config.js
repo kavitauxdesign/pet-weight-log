@@ -17,7 +17,7 @@ export default defineConfig({
       },
     },
     watch: {
-      ignored: ['**/data/**', '**/api/**'],
+      ignored: ['data/**', 'api/**'],
     },
   },
   resolve: {

@@ -84,19 +84,15 @@
               />
 
               <div
-                :class="[
-                  'pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 flex',
-                  '-translate-x-1/2 items-center gap-1.5 rounded bg-[var(--color-text-dark)]',
-                  'px-3 py-1.5 text-sm font-normal whitespace-nowrap text-white',
-                  'opacity-0 shadow-md',
-                  'transition-opacity duration-200 group-hover/cake:opacity-100',
-                ]"
-                role="tooltip"
+                :class="['pointer-events-none absolute bottom-full left-1/2 z-10 -translate-x-1/2']"
               >
-                <span>{{ birthday }}</span>
-                <span
-                  class="absolute top-full left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-x-transparent border-t-[6px] border-t-[var(--color-text-dark)]"
-                ></span>
+                <TooltipLabel
+                  :text="birthday"
+                  :class-name="[
+                    'mb-2 flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-normal shadow-md',
+                    'opacity-0 transition-opacity duration-200 group-hover/cake:opacity-100',
+                  ]"
+                />
               </div>
             </div>
 
@@ -108,6 +104,7 @@
                       'text-[20px] leading-[22px] font-normal text-[var(--color-text-secondary)]',
                       'sm:text-[26px]',
                     ]"
+                    style="font-size: 20px; line-height: 21px"
                     >{{ part.value }}</span
                   >
                   <span
@@ -115,6 +112,7 @@
                       'text-[13px] leading-4 font-normal text-[var(--color-text-secondary)]',
                       'sm:text-[17px]',
                     ]"
+                    style="font-size: 13px"
                     >{{ part.label }}</span
                   >
                 </div>
@@ -135,6 +133,7 @@
 <script setup lang="js">
 import { computed } from 'vue'
 import ProfileCardFlipAvatar from '@/components/ProfileCardFlipAvatar.vue'
+import TooltipLabel from '@/components/TooltipLabel.vue'
 import { getAgePartsFromBirthday } from '@/utils/petAge'
 
 const props = defineProps({

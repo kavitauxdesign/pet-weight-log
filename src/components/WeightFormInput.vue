@@ -1,6 +1,10 @@
 <template>
   <div>
-    <label :for="inputId" class="mb-2 block text-md font-medium" :style="{ color: labelColor }">
+    <label
+      :for="inputId"
+      class="mb-2 block font-medium"
+      :class="labelClass"
+    >
       {{ label }}
     </label>
 
@@ -40,9 +44,9 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  labelColor: {
-    type: String,
-    default: 'var(--color-text-secondary)',
+  labelClass: {
+    type: [String, Array, Object],
+    default: () => 'text-[var(--color-text-secondary)] text-base',
   },
   petName: {
     type: String,
