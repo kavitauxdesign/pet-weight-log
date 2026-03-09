@@ -3,8 +3,8 @@
 @import 'tailwindcss';
 
 :root {
-  --color-primary-natty: #5b4a99;
-  --color-primary-moka: #d97b9e;
+  --color-primary-natty: #8539c4;
+  --color-primary-moka: #d83d95;
   --color-body-bg: #f5f5f7;
   --color-app-bg: var(--color-body-bg);
   --color-surface: #ffffff;
@@ -13,9 +13,6 @@
   --color-text-dark: #1e2c48;
   --color-text-muted: #d1d5dc;
   --color-age-box-bg: #f5f5f7;
-  --color-star-badge-bg: #ffb900;
-  --color-star-center: #ffd966;
-  --color-star-icon: #ffffff;
   --shadow-card-rgb: 71 65 65;
 }
 

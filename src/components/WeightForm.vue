@@ -1,6 +1,9 @@
 <template>
   <section
-    class="mx-auto w-full max-w-[1240px] rounded-3xl bg-[var(--color-surface)] px-8 py-10 shadow-[0_4px_14px_rgba(var(--shadow-card-rgb)/0.18)]"
+    :class="[
+      'mx-auto w-full max-w-[1240px] rounded-3xl bg-[var(--color-surface)] px-8 py-10',
+      'shadow-[0_4px_14px_rgba(var(--shadow-card-rgb)/0.18)]',
+    ]"
   >
     <h2 class="text-3xl font-semibold text-[var(--color-text-dark)]">Registrar Peso</h2>
 
@@ -29,7 +32,12 @@
         <div class="mt-12 flex flex-col items-center gap-4">
           <button
             type="submit"
-            class="min-w-[240px] rounded-full bg-[var(--color-text-dark)] px-10 py-3 text-base font-medium text-white transition-all duration-200 enabled:hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40"
+            :class="[
+              'min-w-[240px] rounded-full bg-[var(--color-text-dark)] px-10 py-3 text-base font-medium text-white',
+              'transition-all duration-200 enabled:hover:cursor-pointer',
+              'enabled:hover:bg-[linear-gradient(90deg,var(--color-primary-natty),var(--color-primary-moka))]',
+              'disabled:cursor-not-allowed disabled:opacity-40',
+            ]"
             :disabled="!isFormValid"
           >
             Añadir registro

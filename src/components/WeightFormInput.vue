@@ -1,11 +1,11 @@
 <template>
   <div>
-    <label :for="inputId" class="mb-2 block text-sm font-medium" :style="{ color: labelColor }">
+    <label :for="inputId" class="mb-2 block text-md font-medium" :style="{ color: labelColor }">
       {{ label }}
     </label>
 
     <div class="flex items-center">
-      <img :src="photo" :alt="`Foto de ${petName}`" class="h-15 w-15 rounded-full object-cover" />
+      <img :src="photo" :alt="`Foto de ${petName}`" class="h-20 w-20 rounded-full object-cover" />
 
       <input
         :id="inputId"
@@ -15,7 +15,10 @@
         min="0"
         step="1"
         placeholder="Insertar gramos"
-        class="h-12 w-full rounded-2xl border border-gray-300 px-4 text-base text-[var(--color-text-dark)] outline-none transition focus:border-gray-400"
+        :class="[
+          'h-12 w-full rounded-2xl border border-gray-300 px-4 text-base',
+          'text-[var(--color-text-dark)] outline-none transition focus:border-gray-400',
+        ]"
         @input="onInput"
       />
     </div>

@@ -1,6 +1,9 @@
 <template>
   <section
-    class="mx-auto w-full max-w-[1240px] rounded-3xl bg-[var(--color-surface)] p-5 shadow-[0_3px_3px_rgba(var(--shadow-card-rgb)/0.25)] sm:p-8"
+    :class="[
+      'mx-auto w-full max-w-[1240px] rounded-3xl bg-[var(--color-surface)] p-5 sm:p-8',
+      'shadow-[0_3px_3px_rgba(var(--shadow-card-rgb)/0.25)]',
+    ]"
   >
     <div class="mb-5 flex flex-wrap items-end justify-between gap-3 sm:mb-6">
       <div>
@@ -14,7 +17,10 @@
       <button
         type="button"
         @click="toggleView"
-        class="rounded-full bg-[var(--color-age-box-bg)] px-3 py-1 text-sm font-medium text-[var(--color-text-dark)] transition hover:bg-gray-200"
+        :class="[
+          'rounded-full bg-[var(--color-age-box-bg)] px-3 py-1 text-sm font-medium',
+          'text-[var(--color-text-dark)] transition hover:bg-gray-200',
+        ]"
       >
         {{ showTable ? 'Ver Grafica' : 'Ver Tabla' }}
       </button>
@@ -39,7 +45,11 @@
           <tr
             v-for="row in rows"
             :key="row.id"
-            class="cursor-default border-b border-[var(--color-age-box-bg)] odd:bg-white even:bg-[var(--color-age-box-bg)] transition-shadow hover:shadow-[0_2px_8px_rgba(209,213,219,0.55)] last:border-b-0"
+            :class="[
+              'cursor-default border-b border-[var(--color-age-box-bg)] odd:bg-white',
+              'even:bg-[var(--color-age-box-bg)] transition-shadow',
+              'hover:shadow-[0_2px_8px_rgba(209,213,219,0.55)] last:border-b-0',
+            ]"
           >
             <td class="py-4 pr-6 text-sm text-[var(--color-text-dark)]">{{ row.date }}</td>
             <td class="py-4 pr-6 text-sm text-[var(--color-text-secondary)]">{{ row.age }}</td>
@@ -51,13 +61,20 @@
               <div class="group relative inline-flex items-center">
                 <button
                   type="button"
-                  class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+                  :class="[
+                    'inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500',
+                    'transition hover:bg-gray-100 hover:text-gray-700',
+                  ]"
                   aria-label="Borrar registro"
                 >
                   <img class="h-4 w-4" src="/assets/trash-bin.svg" alt="" aria-hidden="true" />
                 </button>
                 <span
-                  class="pointer-events-none absolute -top-9 right-0 rounded-md bg-[var(--color-text-dark)] px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100"
+                  :class="[
+                    'pointer-events-none absolute -top-9 right-0 rounded-md',
+                    'bg-[var(--color-text-dark)] px-2 py-1 text-xs whitespace-nowrap text-white',
+                    'opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100',
+                  ]"
                 >
                   Borrar registro
                 </span>
