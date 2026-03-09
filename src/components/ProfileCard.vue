@@ -1,10 +1,10 @@
 <template>
   <div
     :class="[
-      'w-full rounded-3xl bg-[var(--color-surface)] p-6 sm:p-10',
+      'profile-card',
+      'w-full rounded-3xl bg-[var(--color-surface)] p-5 sm:p-10',
       'shadow-[0_3px_6px_0_rgb(var(--shadow-card-rgb)/0.25)]',
     ]"
-    :style="{ '--profile-primary': primary_color }"
   >
     <div class="flex items-start gap-5 sm:gap-8">
       <div class="relative flex shrink-0 flex-col items-center">
@@ -17,10 +17,9 @@
 
         <div
           :class="[
-            'mt-2.5 text-center text-lg leading-[1.05] font-bold whitespace-nowrap',
+            'mt-2.5 text-center text-lg leading-[1.05] font-bold whitespace-nowrap font-dancing-script',
             'text-[var(--profile-primary)] sm:text-2xl',
           ]"
-          style="font-family: 'Dancing Script', cursive"
         >
           {{ nickname }}
         </div>
@@ -43,26 +42,27 @@
           </p>
         </div>
 
-        <div class="flex flex-col gap-3">
-          <div class="flex items-end gap-1.5">
-            <img
-              class="h-7 w-7 object-contain"
-              style="margin-bottom: -1px"
-              src="/assets/scale_icon.svg"
-              alt="scale icon"
-            />
-            <span
-              class="text-lg leading-[1] font-normal text-[var(--color-text-secondary)] sm:text-2xl"
-              >{{ current_weight }}g</span
-            >
-            <span
-              :class="[
-                'text-base leading-[1] font-normal',
-                weight_diff >= 0 ? 'text-emerald-600' : 'text-red-600',
-              ]"
-            >
-              ({{ weight_diff >= 0 ? '+ ' : '- ' }}{{ Math.abs(weight_diff) }}g)
-            </span>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-start gap-2">
+            <img class="h-11 w-11 object-contain" src="/assets/scale_icon.svg" alt="scale icon" />
+            <div class="flex flex-col gap-1">
+              <span
+                class="text-lg leading-[1] font-normal text-[var(--color-text-dark)] sm:text-2xl"
+                >{{ current_weight }}
+                <span class="-ml-0.5 text-[13px] text-[var(--color-text-secondary)]">gramos</span>
+              </span>
+              <span
+                :class="[
+                  'mt-0.5 text-[13px] leading-[1] font-normal',
+                  weight_diff >= 0
+                    ? 'text-[var(--color-text-green)]'
+                    : 'text-[var(--color-text-red)]',
+                ]"
+              >
+                {{ weight_diff >= 0 ? '↑ ' : '↓ ' }}{{ Math.abs(weight_diff) }} g desde la última
+                pesa
+              </span>
+            </div>
           </div>
 
           <div
@@ -74,12 +74,12 @@
             <div class="group/cake relative flex h-7 w-7 shrink-0 items-center justify-center">
               <img
                 :class="[
-                  'h-8 w-8 origin-bottom object-contain drop-shadow-[0_1px_0_rgba(0,0,0,0.08)]',
+                  'h-5 w-5 origin-bottom object-contain drop-shadow-[0_1px_0_rgba(0,0,0,0.08)]',
                   'transition-transform duration-300 ease-out group-hover/cake:-translate-y-0.5',
                   'group-hover/cake:scale-105',
                   'group-hover/cake:drop-shadow-[0_4px_6px_rgba(0,0,0,0.15)]',
                 ]"
-                src="/assets/birthday-cake.svg"
+                src="/assets/birthday-cake-grey.svg"
                 alt="birthday cake icon"
               />
 
@@ -100,19 +100,19 @@
               </div>
             </div>
 
-            <div class="flex flex-1 items-center gap-1.5 pl-2.5 sm:gap-2 sm:pl-5">
+            <div class="flex flex-1 items-center gap-1 pl-2 sm:pl-5">
               <template v-for="(part, index) in ageParts" :key="part.key">
                 <div class="flex items-end gap-[3px]">
                   <span
                     :class="[
-                      'text-xl leading-[22px] font-normal text-[var(--profile-primary)]',
+                      'text-[20px] leading-[22px] font-normal text-[var(--color-text-secondary)]',
                       'sm:text-[26px]',
                     ]"
                     >{{ part.value }}</span
                   >
                   <span
                     :class="[
-                      'text-sm leading-4 font-normal text-[var(--color-text-secondary)]',
+                      'text-[13px] leading-4 font-normal text-[var(--color-text-secondary)]',
                       'sm:text-[17px]',
                     ]"
                     >{{ part.label }}</span
@@ -180,3 +180,13 @@ const ageParts = computed(() => {
   return getAgePartsFromBirthday(props.birthday)
 })
 </script>
+
+<style scoped>
+.profile-card {
+  --profile-primary: v-bind(primary_color);
+}
+
+.font-dancing-script {
+  font-family: 'Dancing Script', cursive;
+}
+</style>

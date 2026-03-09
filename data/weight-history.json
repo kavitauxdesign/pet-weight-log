@@ -12,5 +12,26 @@
         "age": "Pendiente",
         "nattyWeight": 905,
         "mokaWeight": 999
+    },
+    {
+        "id": 12,
+        "date": "09 mar 2026",
+        "age": "Pendiente",
+        "nattyWeight": 801,
+        "mokaWeight": 1001
+    },
+    {
+        "id": 13,
+        "date": "09 mar 2026",
+        "age": "Pendiente",
+        "nattyWeight": 1101,
+        "mokaWeight": 601
+    },
+    {
+        "id": 14,
+        "date": "09 mar 2026",
+        "age": "Pendiente",
+        "nattyWeight": 801,
+        "mokaWeight": 1001
     }
 ]

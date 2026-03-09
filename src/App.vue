@@ -80,10 +80,12 @@
             alt="Logo con dos cobayas"
           />
           <div class="flex flex-col">
-            <h1 class="text-[34px] leading-9 font-semibold text-[var(--color-text-dark)]">
+            <h1
+              class="text-[20px] leading-[30px] font-semibold text-[var(--color-text-dark)] sm:text-[34px] sm:leading-9"
+            >
               PetWeight
             </h1>
-            <p class="text-lg leading-5 text-[var(--color-text-secondary)]">
+            <p class="text-[15px] leading-[14px] text-[var(--color-text-secondary)] sm:text-lg sm:leading-5">
               Seguimiento de peso de mascotas
             </p>
           </div>

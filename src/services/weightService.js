@@ -1,5 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
-const WEIGHTS_ENDPOINT = `${API_BASE_URL}/api/weights.php`
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+const API_ROOT = API_BASE_URL || '/api'
+const WEIGHTS_ENDPOINT = `${API_ROOT}/weights.php`
 const WRITE_TOKEN = import.meta.env.VITE_WEIGHT_API_TOKEN ?? ''
 
 function getWriteHeaders() {

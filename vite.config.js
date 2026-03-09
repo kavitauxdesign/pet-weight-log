@@ -9,6 +9,13 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 export default defineConfig({
   plugins: [vue(), tailwindcss(), vueDevTools()],
   server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
     watch: {
       ignored: ['**/data/**', '**/api/**'],
     },
