@@ -8,7 +8,12 @@
     <h2 class="text-3xl font-semibold text-[var(--color-text-dark)]">Registrar Peso</h2>
 
     <div class="mt-10 flex items-center justify-center">
-      <form class="w-full max-w-[560px]" novalidate @submit.prevent="submitForm">
+      <form class="w-full max-w-[560px]" novalidate @submit.prevent="openPasswordDialog">
+            <PasswordDialog
+              :open="passwordDialogOpen"
+              @success="onPasswordSuccess"
+              @cancel="onPasswordCancel"
+            />
         <div class="grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-2">
           <WeightFormInput
             v-for="pet in props.pets"
@@ -46,7 +51,10 @@
 </template>
 
 <script setup lang="js">
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import PasswordDialog from '@/components/PasswordDialog.vue'
+const passwordDialogOpen = ref(false)
+let pendingSubmit = false
 import WeightFormInput from '@/components/WeightFormInput.vue'
 import { formatDateForDisplay } from '@/utils/petAge'
 
@@ -70,19 +78,30 @@ const isFormValid = computed(() => {
   })
 })
 
-function submitForm() {
-  if (!isFormValid.value) return
 
+function openPasswordDialog() {
+  if (!isFormValid.value) return
+  passwordDialogOpen.value = true
+}
+
+function onPasswordSuccess() {
+  passwordDialogOpen.value = false
+  submitForm()
+}
+
+function onPasswordCancel() {
+  passwordDialogOpen.value = false
+}
+
+function submitForm() {
   const payloadWeights = Object.fromEntries(
     props.pets.map((pet) => [pet.weightKey, form[pet.weightKey]]),
   )
-
   emit('submit', {
     date: formatDateForDisplay(new Date()),
     age: 'Pendiente',
     ...payloadWeights,
   })
-
   props.pets.forEach((pet) => {
     form[pet.weightKey] = null
   })

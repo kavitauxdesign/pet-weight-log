@@ -5,7 +5,7 @@
       :disabled="disabled"
       class="btn-icon"
       :aria-label="ariaLabel"
-      @click="emit('press')"
+      @click="handleClick"
     >
       <svg
         v-if="loading"
@@ -46,5 +46,12 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['press'])
+
+const emit = defineEmits(['request-auth'])
+
+function handleClick() {
+  if (!disabled) {
+    emit('request-auth')
+  }
+}
 </script>

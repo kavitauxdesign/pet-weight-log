@@ -95,7 +95,7 @@ ${year}` } } else { editForm.value.date = '' } }
                   :loading="editingId === row.id"
                   aria-label="Editar registro"
                   tooltip="Editar"
-                  @press="requestEdit(row)"
+                  @request-auth="openPasswordDialog('edit', row)"
                 >
                   <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
@@ -119,8 +119,32 @@ ${year}` } } else { editForm.value.date = '' } }
                   :loading="deletingId === row.id"
                   aria-label="Borrar registro"
                   tooltip="Borrar"
-                  @press="requestDelete(row.id)"
+                  @request-auth="openPasswordDialog('delete', row)"
                 >
+                  <PasswordDialog
+                    :open="passwordDialog.open"
+                    @success="onPasswordSuccess"
+                    @cancel="onPasswordCancel"
+                  />
+                  import PasswordDialog from '@/components/PasswordDialog.vue'
+                  const passwordDialog = ref({ open: false, action: '', row: null })
+
+                  function openPasswordDialog(action, row) {
+                    passwordDialog.value = { open: true, action, row }
+                  }
+
+                  function onPasswordSuccess() {
+                    if (passwordDialog.value.action === 'edit') {
+                      requestEdit(passwordDialog.value.row)
+                    } else if (passwordDialog.value.action === 'delete') {
+                      requestDelete(passwordDialog.value.row.id)
+                    }
+                    passwordDialog.value = { open: false, action: '', row: null }
+                  }
+
+                  function onPasswordCancel() {
+                    passwordDialog.value = { open: false, action: '', row: null }
+                  }
                   <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
                       d="M4 7h16"

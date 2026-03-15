@@ -83,7 +83,7 @@
             <h1
               class="text-[20px] leading-[30px] font-semibold text-[var(--color-text-dark)] sm:text-[34px] sm:leading-9"
             >
-              PetWeight
+              PetPeso
             </h1>
             <p
               class="text-[15px] leading-[14px] text-[var(--color-text-secondary)] sm:text-lg sm:leading-5"
