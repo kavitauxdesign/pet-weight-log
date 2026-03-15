@@ -269,14 +269,13 @@
             <label class="mb-2 block text-sm font-medium" :style="{ color: pet.primaryColor }"
               >{{ pet.name }} (g)</label
             >
-            <input
-              v-model.number="editForm.weights[pet.weightKey]"
-              type="number"
-              inputmode="numeric"
-              min="1"
-              step="100"
+            <StepNumberInput
+              :model-value="editForm.weights[pet.weightKey] ?? null"
               placeholder="800"
-              class="input-field"
+              :input-aria-label="`Peso de ${pet.name} en gramos`"
+              :increment-label="`Aumentar peso de ${pet.name}`"
+              :decrement-label="`Reducir peso de ${pet.name}`"
+              @update:model-value="setEditWeightValue(pet.weightKey, $event)"
             />
           </div>
         </div>
@@ -337,6 +336,7 @@ import {
 } from 'chart.js'
 import DataViewActionButton from '@/components/DataViewActionButton.vue'
 import PasswordDialog from '@/components/PasswordDialog.vue'
+import StepNumberInput from '@/components/StepNumberInput.vue'
 import { formatDateForDisplay, getAgeTextFromBirthday } from '@/utils/petAge'
 
 const passwordDialog = ref({ open: false, action: '', row: null })
@@ -534,6 +534,10 @@ function confirmEdit() {
   })
 
   pendingEditId.value = null
+}
+
+function setEditWeightValue(weightKey, value) {
+  editForm.value.weights[weightKey] = value
 }
 
 function onDateInputChange(event) {

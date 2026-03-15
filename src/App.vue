@@ -43,7 +43,27 @@
         aria-live="polite"
       >
         <svg
-          v-if="toastType === 'edit'"
+          v-if="toastType === 'add'"
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 5v14"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+          <path
+            d="M5 12h14"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+        <svg
+          v-else-if="toastType === 'edit'"
           class="h-4 w-4"
           viewBox="0 0 24 24"
           fill="none"
@@ -240,6 +260,7 @@ async function handleSubmit(entry) {
     const created = await addWeight(entry)
     if (created) {
       rows.value = [...rows.value, created]
+      showSuccessToast('Peso añadido!', 'add')
     }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'No se pudo guardar el registro.'
