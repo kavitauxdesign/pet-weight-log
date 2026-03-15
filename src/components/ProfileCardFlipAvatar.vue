@@ -18,17 +18,19 @@
     <span
       class="block h-full w-full rounded-full bg-[conic-gradient(from_180deg_at_50%_50%,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5,#feda75)] p-[3px]"
     >
-      <span class="relative block h-full w-full overflow-hidden rounded-full bg-gray-100">
-        <img
-          :src="frontSrc"
-          :alt="alt"
-          :class="frontImageClass"
-        />
-        <img
-          :src="backSrc"
-          :alt="`${alt} (reverso)`"
-          :class="backImageClass"
-        />
+      <span class="relative block h-full w-full overflow-hidden rounded-full bg-white perspective-1000">
+        <span :class="flipInnerClass">
+          <img
+            :src="frontSrc"
+            :alt="alt"
+            :class="frontImageClass"
+          />
+          <img
+            :src="backSrc"
+            :alt="`${alt} (reverso)`"
+            :class="backImageClass"
+          />
+        </span>
       </span>
     </span>
   </div>
@@ -66,18 +68,24 @@ const visibleSide = computed(() => {
   return isHovering.value ? oppositeSide(props.selectedSide) : props.selectedSide
 })
 const isBackVisible = computed(() => visibleSide.value === 'back')
+const flipInnerClass = computed(() => {
+  return [
+    'flip-inner relative block h-full w-full rounded-full transition-transform duration-500 ease-out',
+    isBackVisible.value ? 'is-flipped' : '',
+  ]
+})
 const sharedImageClass =
-  'absolute inset-0 h-full w-full rounded-full object-cover transition-all duration-300 ease-out'
+  'flip-face absolute inset-0 h-full w-full rounded-full bg-white transition-opacity duration-300 ease-out'
 const frontImageClass = computed(() => {
   return [
     sharedImageClass,
-    isBackVisible.value ? 'pointer-events-none scale-[0.96] opacity-0' : 'scale-100 opacity-100',
+    'object-cover',
   ]
 })
 const backImageClass = computed(() => {
   return [
     sharedImageClass,
-    isBackVisible.value ? 'scale-100 opacity-100' : 'pointer-events-none scale-[0.96] opacity-0',
+    'flip-back object-cover',
   ]
 })
 const emit = defineEmits(['update:selected-side'])
@@ -110,3 +118,26 @@ onMounted(() => {
   canHover.value = window.matchMedia('(hover: hover)').matches
 })
 </script>
+
+<style scoped>
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.flip-inner {
+  transform-style: preserve-3d;
+}
+
+.flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+</style>
