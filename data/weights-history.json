@@ -1,0 +1,51 @@
+[
+    {
+        "id": 8,
+        "date": "2025-12-14",
+        "age": "Pendiente",
+        "nattyWeight": 480,
+        "mokaWeight": 450
+    },
+    {
+        "id": 12,
+        "date": "2025-12-30",
+        "age": "Pendiente",
+        "nattyWeight": 584,
+        "mokaWeight": 554
+    },
+    {
+        "id": 13,
+        "date": "2026-01-11",
+        "age": "Pendiente",
+        "nattyWeight": 666,
+        "mokaWeight": 639
+    },
+    {
+        "id": 14,
+        "date": "2026-01-25",
+        "age": "Pendiente",
+        "nattyWeight": 735,
+        "mokaWeight": 715
+    },
+    {
+        "id": 15,
+        "date": "2026-02-08",
+        "age": "Pendiente",
+        "nattyWeight": 775,
+        "mokaWeight": 764
+    },
+    {
+        "id": 16,
+        "date": "2026-02-22",
+        "age": "Pendiente",
+        "nattyWeight": 854,
+        "mokaWeight": 839
+    },
+    {
+        "id": 17,
+        "date": "2026-03-08",
+        "age": "Pendiente",
+        "nattyWeight": 890,
+        "mokaWeight": 907
+    }
+]
