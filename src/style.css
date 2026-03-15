@@ -81,8 +81,29 @@
     transition: background-color 150ms ease;
   }
 
-  .btn-secondary:hover {
+  .btn-secondary:hover:not(:disabled) {
     background-color: var(--color-ui-bg-hover-subtle);
+  }
+
+  .btn-primary {
+    border-radius: 0.75rem;
+    background: var(--color-text-dark);
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  .btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
   }
 
   .input-field {
@@ -99,6 +120,89 @@
 
   .input-field:focus {
     border-color: var(--color-ui-border-focus);
+  }
+
+  .stepper-shell {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid var(--color-ui-border);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+    transition: border-color 150ms ease;
+  }
+
+  .stepper-shell:focus-within {
+    border-color: var(--color-ui-border-focus);
+  }
+
+  .stepper-button {
+    display: flex;
+    height: 3rem;
+    width: 3rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    transition: background-color 150ms ease, opacity 150ms ease;
+  }
+
+  .stepper-button:hover:not(:disabled) {
+    background: var(--color-ui-bg-hover-subtle);
+  }
+
+  .stepper-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  .stepper-input {
+    height: 3rem;
+    min-width: 0;
+    flex: 1 1 auto;
+    border-right: 1px solid #e5e7eb;
+    border-left: 1px solid #e5e7eb;
+    background: transparent;
+    padding: 0 0.75rem;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text-dark);
+    outline: none;
+  }
+
+  .stepper-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .stepper-input:disabled {
+    cursor: not-allowed;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 0.4);
+  }
+
+  .modal-panel {
+    width: 100%;
+    border-radius: 1rem;
+    background: var(--color-surface);
+    padding: 1.5rem;
+    box-shadow: 0 12px 30px rgb(var(--shadow-card-rgb) / 0.35);
+  }
+
+  .spinner-icon {
+    height: 1rem;
+    width: 1rem;
+    animation: spin 1s linear infinite;
   }
 
   .tooltip-chip {

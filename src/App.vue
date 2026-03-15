@@ -76,7 +76,12 @@
             stroke-linecap="round"
             stroke-linejoin="round"
           />
-          <path d="M12 6l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <path
+            d="M12 6l4 4"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
         </svg>
         <img
           v-else-if="toastType === 'delete'"
@@ -84,7 +89,7 @@
           src="/assets/trash-bin.svg"
           alt=""
           aria-hidden="true"
-        />
+        >
         {{ toastMessage }}
       </div>
     </Transition>
@@ -98,7 +103,7 @@
             class="h-auto w-[140px] max-w-none object-contain"
             src="/assets/logo.png"
             alt="Logo con dos cobayas"
-          />
+          >
           <div class="flex flex-col">
             <h1
               class="text-[20px] leading-[30px] font-semibold text-[var(--color-text-dark)] sm:text-[34px] sm:leading-9"
@@ -122,17 +127,16 @@
         <ProfileCard
           v-for="pet in petsWithAvatarState"
           :key="pet.id"
-          :profile-id="pet.id"
           :name="pet.name"
           :photo="pet.frontPhoto"
-          :back_photo="pet.backPhoto"
-          :selected_side="pet.selectedSide"
+          :back-photo="pet.backPhoto"
+          :selected-side="pet.selectedSide"
           :breed="pet.breed"
           :nickname="pet.nickname"
           :birthday="pet.birthday"
-          :primary_color="pet.primaryColor"
-          :current_weight="petStats[pet.id]?.currentWeight ?? 800"
-          :weight_diff="petStats[pet.id]?.weightDiff ?? 0"
+          :primary-color="pet.primaryColor"
+          :current-weight="petStats[pet.id]?.currentWeight ?? 800"
+          :weight-diff="petStats[pet.id]?.weightDiff ?? 0"
           @update:selected-side="handleAvatarSelectedSide(pet.id, $event)"
         />
       </section>
@@ -152,7 +156,10 @@
       </section>
 
       <section class="mt-6 sm:mt-8">
-        <WeightForm :pets="petsWithAvatarState" @submit="handleSubmit" />
+        <WeightForm
+          :pets="petsWithAvatarState"
+          @submit="handleSubmit"
+        />
       </section>
     </main>
   </div>

@@ -5,23 +5,29 @@
       'shadow-[0_4px_14px_rgba(var(--shadow-card-rgb)/0.18)]',
     ]"
   >
-    <h2 class="text-3xl font-semibold text-[var(--color-text-dark)]">Registrar Peso</h2>
+    <h2 class="text-3xl font-semibold text-[var(--color-text-dark)]">
+      Registrar Peso
+    </h2>
+
+    <PasswordDialog
+      :open="passwordDialogOpen"
+      @success="onPasswordSuccess"
+      @cancel="onPasswordCancel"
+    />
 
     <div class="mt-10 flex items-center justify-center">
-      <form class="w-full max-w-[560px]" novalidate @submit.prevent="openPasswordDialog">
-            <PasswordDialog
-              :open="passwordDialogOpen"
-              @success="onPasswordSuccess"
-              @cancel="onPasswordCancel"
-            />
+      <form
+        class="w-full max-w-[560px]"
+        novalidate
+        @submit.prevent="openPasswordDialog"
+      >
         <div class="grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-2">
           <WeightFormInput
             v-for="pet in props.pets"
             :key="pet.id"
-            :input-id="`${pet.id}-weight`"
             v-model="form[pet.weightKey]"
+            :input-id="`${pet.id}-weight`"
             :label="`Peso de ${pet.name} (g)`"
-            :label-color="pet.primaryColor"
             :pet-name="pet.name"
             :photo="pet.displayPhoto ?? pet.formPhoto ?? pet.photo"
             :photo-border-color="pet.primaryColor"
@@ -54,10 +60,10 @@
 <script setup lang="js">
 import { computed, reactive, ref } from 'vue'
 import PasswordDialog from '@/components/PasswordDialog.vue'
-const passwordDialogOpen = ref(false)
-let pendingSubmit = false
 import WeightFormInput from '@/components/WeightFormInput.vue'
 import { formatDateForDisplay } from '@/utils/petAge'
+
+const passwordDialogOpen = ref(false)
 
 const props = defineProps({
   pets: {
@@ -78,7 +84,6 @@ const isFormValid = computed(() => {
     return Number.isInteger(value) && value > 0
   })
 })
-
 
 function openPasswordDialog() {
   if (!isFormValid.value) return
