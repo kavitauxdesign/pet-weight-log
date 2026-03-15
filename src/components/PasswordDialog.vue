@@ -10,33 +10,56 @@
         @keyup.enter="submit"
         autofocus
       />
-      <div v-if="error" class="text-red-600 text-sm mb-2">Contraseña incorrecta</div>
+      <div v-if="errorMessage" class="text-red-600 text-sm mb-2">{{ errorMessage }}</div>
       <div class="flex gap-3 w-full">
         <button class="btn-secondary flex-1" @click="$emit('cancel')">Cancelar</button>
-        <button class="rounded-xl bg-[var(--color-text-dark)] text-white px-4 py-2 flex-1" @click="submit">Aceptar</button>
+        <button
+          class="rounded-xl bg-[var(--color-text-dark)] text-white px-4 py-2 flex-1 disabled:cursor-not-allowed disabled:opacity-40"
+          :disabled="!isPasswordConfigured"
+          @click="submit"
+        >
+          Aceptar
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="js">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   open: Boolean,
 })
 const emit = defineEmits(['success', 'cancel'])
 const input = ref('')
-const error = ref(false)
-const PASSWORD = '12345'
+const hasInvalidPassword = ref(false)
+const actionPassword = (import.meta.env.VITE_ACTION_PASSWORD ?? '').trim()
+
+const isPasswordConfigured = computed(() => actionPassword.length > 0)
+const errorMessage = computed(() => {
+  if (!isPasswordConfigured.value) {
+    return 'Falta configurar VITE_ACTION_PASSWORD en el entorno.'
+  }
+
+  if (hasInvalidPassword.value) {
+    return 'Contraseña incorrecta'
+  }
+
+  return ''
+})
 
 function submit() {
-  if (input.value === PASSWORD) {
-    error.value = false
+  if (!isPasswordConfigured.value) {
+    return
+  }
+
+  if (input.value === actionPassword) {
+    hasInvalidPassword.value = false
     emit('success')
     input.value = ''
   } else {
-    error.value = true
+    hasInvalidPassword.value = true
     input.value = ''
   }
 }
@@ -44,7 +67,7 @@ function submit() {
 watch(() => props.open, (val) => {
   if (!val) {
     input.value = ''
-    error.value = false
+    hasInvalidPassword.value = false
   }
 })
 </script>

@@ -57,6 +57,7 @@ Supported API methods:
 # For local dev:
 VITE_API_BASE_URL=http://localhost:8000
 VITE_WEIGHT_API_TOKEN=change-me
+VITE_ACTION_PASSWORD=change-me
 # For production, leave VITE_API_BASE_URL empty (default):
 # VITE_API_BASE_URL=
 ```
@@ -88,7 +89,11 @@ npm run build
 
 4. Optional but recommended: define `WEIGHT_API_TOKEN` in your hosting PHP environment. Then build frontend with matching `VITE_WEIGHT_API_TOKEN`.
 
-5. In production, keep `VITE_API_BASE_URL` empty (default) so frontend calls `/api/weights.php` on same domain. All `localhost` URLs are for local development only.
+5. Set `VITE_ACTION_PASSWORD` before building if you want the add/edit/delete password prompt to work.
+
+6. In production, keep `VITE_API_BASE_URL` empty (default) so frontend calls `/api/weights.php` on same domain. All `localhost` URLs are for local development only.
+
+`VITE_ACTION_PASSWORD` is only frontend-level protection. Because it is bundled into client code, it should not be treated as a secure secret or as a replacement for backend authorization.
 
 ### Lint with [ESLint](https://eslint.org/)
 
