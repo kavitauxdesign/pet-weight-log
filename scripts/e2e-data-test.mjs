@@ -2,8 +2,8 @@ import { copyFile, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 const rootDir = globalThis.process.cwd()
-const petsPath = path.join(rootDir, 'src', 'data', 'pets.json')
-const weightsPath = path.join(rootDir, 'data', 'weight-history.json')
+const petsPath = path.join(rootDir, 'data', 'pets.json')
+const weightsPath = path.join(rootDir, 'data', 'weights-history.json')
 const petsBackupPath = `${petsPath}.e2e-backup`
 const weightsBackupPath = `${weightsPath}.e2e-backup`
 
@@ -71,7 +71,7 @@ async function run() {
   logStep('1/9', 'Checking API availability')
   await ensureApiAvailable()
 
-  logStep('2/9', 'Creating backups for pets.json and weight-history.json')
+  logStep('2/9', 'Creating backups for pets.json and weights-history.json')
   await copyFile(petsPath, petsBackupPath)
   await copyFile(weightsPath, weightsBackupPath)
 

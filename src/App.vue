@@ -138,7 +138,7 @@ import { computed, onMounted, ref } from 'vue'
 import DataView from '@/components/DataView.vue'
 import ProfileCard from '@/components/ProfileCard.vue'
 import WeightForm from '@/components/WeightForm.vue'
-import pets from '@/data/pets.json'
+import pets from '../data/pets.json'
 import { addWeight, deleteWeight, getWeights, updateWeight } from '@/services/weightService'
 
 const rows = ref([])

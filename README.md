@@ -41,7 +41,8 @@ npm run build
 
 The app now saves and loads weights through `api/weights.php`, which reads/writes:
 
-- `data/weight-history.json`
+- `data/weights-history.json`
+- `data/pets.json`
 
 Supported API methods:
 
@@ -83,9 +84,10 @@ npm run build
 
 - `dist/*` contents (frontend static files)
 - `api/weights.php`
-- `data/weight-history.json`
+- `data/weights-history.json`
+- `data/pets.json`
 
-3. Ensure `data/weight-history.json` is writable by PHP on the server.
+3. Ensure `data/weights-history.json` is writable by PHP on the server.
 
 4. Optional but recommended: define `WEIGHT_API_TOKEN` in your hosting PHP environment. Then build frontend with matching `VITE_WEIGHT_API_TOKEN`.
 
