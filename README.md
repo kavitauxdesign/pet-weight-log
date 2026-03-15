@@ -35,8 +35,15 @@ Screenshots are stored in `public/docs`:
 
 Preview:
 
-![Desktop view](public/docs/screenshot_desktop.png)
-![Mobile view](public/docs/screenshot_mobile.png)
+<p align="left">
+  <img src="public/docs/screenshot_desktop.png" alt="Desktop view" width="700" />
+  <img src="public/docs/screenshot_mobile.png" alt="Mobile view" width="400" />
+</p>
+<p align="left">
+  <strong>Desktop</strong>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <strong>Mobile</strong>
+</p>
 
 ## Important structure
 
