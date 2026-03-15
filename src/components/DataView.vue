@@ -144,11 +144,6 @@
                     />
                   </svg>
                 </DataViewActionButton>
-                  <PasswordDialog
-                    :open="passwordDialog.open"
-                    @success="onPasswordSuccess"
-                    @cancel="onPasswordCancel"
-                  />
               </div>
             </td>
           </tr>
@@ -159,6 +154,12 @@
         <canvas ref="chartCanvas" aria-label="Grafica de lineas de peso por edad"></canvas>
       </div>
     </div>
+
+    <PasswordDialog
+      :open="passwordDialog.open"
+      @success="onPasswordSuccess"
+      @cancel="onPasswordCancel"
+    />
 
     <p class="mt-4 text-right text-sm text-[var(--color-text-secondary)]">
       Ultimo registro: {{ lastEntryDate }}
@@ -322,34 +323,7 @@
 </template>
 
 <script setup lang="js">
-import PasswordDialog from '@/components/PasswordDialog.vue'
-const passwordDialog = ref({ open: false, action: '', row: null })
-
-function openPasswordDialog(action, row) {
-  passwordDialog.value = { open: true, action, row }
-}
-
-
-function onPasswordSuccess() {
-  if (passwordDialog.value.action === 'edit') {
-    emit('edit-row', {
-      id: passwordDialog.value.row.id,
-      payload: {
-        date: passwordDialog.value.row.date,
-        age: passwordDialog.value.row.age ?? 'Pendiente',
-        ...passwordDialog.value.row,
-      },
-    })
-  } else if (passwordDialog.value.action === 'delete') {
-    emit('delete-row', passwordDialog.value.row.id)
-  }
-  passwordDialog.value = { open: false, action: '', row: null }
-}
-
-function onPasswordCancel() {
-  passwordDialog.value = { open: false, action: '', row: null }
-}
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   Chart,
   Filler,
@@ -362,8 +336,36 @@ import {
   CategoryScale,
 } from 'chart.js'
 import DataViewActionButton from '@/components/DataViewActionButton.vue'
+import PasswordDialog from '@/components/PasswordDialog.vue'
 import { formatDateForDisplay, getAgeTextFromBirthday } from '@/utils/petAge'
-import { onMounted } from 'vue'
+
+const passwordDialog = ref({ open: false, action: '', row: null })
+
+function openPasswordDialog(action, row) {
+  if (!row) return
+  passwordDialog.value = { open: true, action, row }
+}
+
+function resetPasswordDialog() {
+  passwordDialog.value = { open: false, action: '', row: null }
+}
+
+function onPasswordSuccess() {
+  const { action, row } = passwordDialog.value
+  resetPasswordDialog()
+
+  if (!row) return
+
+  if (action === 'edit') {
+    requestEdit(row)
+  } else if (action === 'delete') {
+    requestDelete(row.id)
+  }
+}
+
+function onPasswordCancel() {
+  resetPasswordDialog()
+}
 
 onMounted(async () => {
   if (!showTable.value && props.rows.length > 0) {
@@ -472,10 +474,12 @@ const lastEntryDate = computed(() => {
 })
 
 function requestDelete(rowId) {
+  pendingEditId.value = null
   pendingDeleteId.value = rowId
 }
 
 function requestEdit(row) {
+  pendingDeleteId.value = null
   pendingEditId.value = row.id
 
   const weights = Object.fromEntries(
@@ -530,6 +534,28 @@ function confirmEdit() {
   })
 
   pendingEditId.value = null
+}
+
+function onDateInputChange(event) {
+  const iso = event?.target?.value ?? ''
+  editForm.value.dateISO = iso
+
+  if (!iso) {
+    editForm.value.date = ''
+    return
+  }
+
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) {
+    editForm.value.date = ''
+    return
+  }
+
+  const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+  editForm.value.date = `${day} ${month} ${year}`
 }
 
 function getPetAgeAtDate(petKey, dateValue) {

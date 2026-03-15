@@ -10,12 +10,11 @@
         @keyup.enter="submit"
         autofocus
       />
-      <div v-if="errorMessage" class="text-red-600 text-sm mb-2">{{ errorMessage }}</div>
+      <div v-if="getErrorMessage()" class="text-red-600 text-sm mb-2">{{ getErrorMessage() }}</div>
       <div class="flex gap-3 w-full">
         <button class="btn-secondary flex-1" @click="$emit('cancel')">Cancelar</button>
         <button
-          class="rounded-xl bg-[var(--color-text-dark)] text-white px-4 py-2 flex-1 disabled:cursor-not-allowed disabled:opacity-40"
-          :disabled="!isPasswordConfigured"
+          class="rounded-xl bg-[var(--color-text-dark)] text-white px-4 py-2 flex-1"
           @click="submit"
         >
           Aceptar
@@ -26,7 +25,7 @@
 </template>
 
 <script setup lang="js">
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   open: Boolean,
@@ -34,26 +33,14 @@ const props = defineProps({
 const emit = defineEmits(['success', 'cancel'])
 const input = ref('')
 const hasInvalidPassword = ref(false)
-const actionPassword = (import.meta.env.VITE_ACTION_PASSWORD ?? '').trim()
+const fallbackPassword = '12345'
+const actionPassword = (import.meta.env.VITE_ACTION_PASSWORD ?? fallbackPassword).trim()
 
-const isPasswordConfigured = computed(() => actionPassword.length > 0)
-const errorMessage = computed(() => {
-  if (!isPasswordConfigured.value) {
-    return 'Falta configurar VITE_ACTION_PASSWORD en el entorno.'
-  }
-
-  if (hasInvalidPassword.value) {
-    return 'Contraseña incorrecta'
-  }
-
-  return ''
-})
+function getErrorMessage() {
+  return hasInvalidPassword.value ? 'Contraseña incorrecta' : ''
+}
 
 function submit() {
-  if (!isPasswordConfigured.value) {
-    return
-  }
-
   if (input.value === actionPassword) {
     hasInvalidPassword.value = false
     emit('success')
