@@ -23,7 +23,8 @@
             :label="`Peso de ${pet.name} (g)`"
             :label-color="pet.primaryColor"
             :pet-name="pet.name"
-            :photo="pet.formPhoto ?? pet.photo"
+            :photo="pet.displayPhoto ?? pet.formPhoto ?? pet.photo"
+            :photo-border-color="pet.primaryColor"
           />
         </div>
 

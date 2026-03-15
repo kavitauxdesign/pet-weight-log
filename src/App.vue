@@ -100,17 +100,20 @@
         class="mx-auto grid w-full gap-6 items-stretch [grid-template-columns:repeat(auto-fit,minmax(min(100%,445px),1fr))]"
       >
         <ProfileCard
-          v-for="pet in pets"
+          v-for="pet in petsWithAvatarState"
           :key="pet.id"
+          :profile-id="pet.id"
           :name="pet.name"
-          :photo="pet.photo"
+          :photo="pet.frontPhoto"
           :back_photo="pet.backPhoto"
+          :selected_side="pet.selectedSide"
           :breed="pet.breed"
           :nickname="pet.nickname"
           :birthday="pet.birthday"
           :primary_color="pet.primaryColor"
           :current_weight="petStats[pet.id]?.currentWeight ?? 800"
           :weight_diff="petStats[pet.id]?.weightDiff ?? 0"
+          @update:selected-side="handleAvatarSelectedSide(pet.id, $event)"
         />
       </section>
 
@@ -129,14 +132,14 @@
       </section>
 
       <section class="mt-6 sm:mt-8">
-        <WeightForm :pets="pets" @submit="handleSubmit" />
+        <WeightForm :pets="petsWithAvatarState" @submit="handleSubmit" />
       </section>
     </main>
   </div>
 </template>
 
 <script setup lang="js">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import DataView from '@/components/DataView.vue'
 import ProfileCard from '@/components/ProfileCard.vue'
 import WeightForm from '@/components/WeightForm.vue'
@@ -153,6 +156,24 @@ const toastMessage = ref('')
 const toastType = ref('')
 let toastTimer = null
 const petBirthdays = Object.fromEntries(pets.map((pet) => [pet.id, pet.birthday]))
+const AVATAR_SIDE_STORAGE_VERSION = 'v2'
+const avatarSelectedSides = reactive(
+  Object.fromEntries(pets.map((pet) => [pet.id, readAvatarSelectedSide(pet.id)])),
+)
+
+const petsWithAvatarState = computed(() => {
+  return pets.map((pet) => {
+    const frontPhoto = pet.formPhoto ?? pet.photo
+    const selectedSide = avatarSelectedSides[pet.id] ?? 'front'
+
+    return {
+      ...pet,
+      frontPhoto,
+      selectedSide,
+      displayPhoto: selectedSide === 'back' ? pet.backPhoto : frontPhoto,
+    }
+  })
+})
 
 const petStats = computed(() => {
   const orderedRows = [...rows.value].sort((a, b) => Number(a.id) - Number(b.id))
@@ -174,6 +195,29 @@ const petStats = computed(() => {
 
   return Object.fromEntries(pets.map((pet) => [pet.id, buildStat(pet.weightKey)]))
 })
+
+function getAvatarStorageKey(petId) {
+  return `petpeso-avatar-side:${AVATAR_SIDE_STORAGE_VERSION}:${petId}`
+}
+
+function readAvatarSelectedSide(petId) {
+  try {
+    const storedSide = sessionStorage.getItem(getAvatarStorageKey(petId))
+    return storedSide === 'back' ? 'back' : 'front'
+  } catch {
+    return 'front'
+  }
+}
+
+function handleAvatarSelectedSide(petId, side) {
+  avatarSelectedSides[petId] = side === 'back' ? 'back' : 'front'
+
+  try {
+    sessionStorage.setItem(getAvatarStorageKey(petId), avatarSelectedSides[petId])
+  } catch {
+    // Ignore storage failures and keep the in-memory selection.
+  }
+}
 
 async function loadWeights() {
   isLoading.value = true

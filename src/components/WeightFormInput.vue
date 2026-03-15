@@ -8,8 +8,13 @@
       {{ label }}
     </label>
 
-    <div class="flex items-center">
-      <img :src="photo" :alt="`Foto de ${petName}`" class="h-20 w-20 rounded-full object-cover" />
+    <div class="flex items-center gap-2">
+      <img
+        :src="photo"
+        :alt="`Foto de ${petName}`"
+        class="h-20 w-20 rounded-full border-[1px] bg-white object-cover"
+        :style="{ borderColor: photoBorderColor }"
+      />
 
       <input
         :id="inputId"
@@ -55,6 +60,10 @@ const props = defineProps({
   photo: {
     type: String,
     required: true,
+  },
+  photoBorderColor: {
+    type: String,
+    default: 'var(--color-ui-border)',
   },
 })
 

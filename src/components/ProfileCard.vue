@@ -11,8 +11,10 @@
         <ProfileCardFlipAvatar
           :front-src="photo"
           :back-src="back_photo"
+          :selected-side="selected_side"
           :alt="`Avatar de ${name}`"
           size-class="h-[110px] w-[110px] sm:h-36 sm:w-36"
+          @update:selected-side="$emit('update:selected-side', $event)"
         />
 
         <div
@@ -134,7 +136,13 @@ import ProfileCardFlipAvatar from '@/components/ProfileCardFlipAvatar.vue'
 import TooltipLabel from '@/components/TooltipLabel.vue'
 import { getAgePartsFromBirthday } from '@/utils/petAge'
 
+defineEmits(['update:selected-side'])
+
 const props = defineProps({
+  profile_id: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
     default: 'Natty',
@@ -146,6 +154,10 @@ const props = defineProps({
   back_photo: {
     type: String,
     default: '',
+  },
+  selected_side: {
+    type: String,
+    default: 'front',
   },
   breed: {
     type: String,
