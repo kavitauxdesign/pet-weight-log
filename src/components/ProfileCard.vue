@@ -2,11 +2,11 @@
   <div
     :class="[
       'profile-card',
-      'w-full rounded-3xl bg-[var(--color-surface)] p-5 sm:p-10',
+      'w-full rounded-3xl bg-[var(--color-surface)] p-5 sm:p-8 lg:p-10',
       'shadow-[0_3px_6px_0_rgb(var(--shadow-card-rgb)/0.25)]',
     ]"
   >
-    <div class="flex items-start gap-5 sm:gap-8">
+    <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-8 sm:text-left">
       <div class="relative flex shrink-0 flex-col items-center">
         <ProfileCardFlipAvatar
           :front-src="photo"
@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <div class="flex min-h-[180px] flex-1 flex-col self-stretch justify-between">
+      <div class="flex min-h-[180px] flex-1 flex-col justify-between gap-5 self-stretch">
         <div class="flex flex-col gap-1">
           <h1
             :class="[
@@ -43,7 +43,7 @@
         </div>
 
         <div class="flex flex-col gap-4">
-          <div class="flex items-start gap-2">
+          <div class="flex items-start justify-center gap-2 sm:justify-start">
             <img class="h-11 w-11 object-contain" src="/assets/scale_icon.svg" alt="scale icon" />
             <div class="flex flex-col gap-1">
               <span
@@ -83,9 +83,7 @@
                 alt="birthday cake icon"
               />
 
-              <div
-                :class="['pointer-events-none absolute bottom-full left-1/2 z-10 -translate-x-1/2']"
-              >
+              <div :class="['pointer-events-none absolute bottom-full left-1/2 z-10 -translate-x-1/2']">
                 <TooltipLabel
                   :text="birthday"
                   :class-name="[
@@ -96,7 +94,7 @@
               </div>
             </div>
 
-            <div class="flex flex-1 items-center gap-1 pl-2 sm:pl-5">
+            <div class="flex flex-1 flex-wrap items-center justify-center gap-1 pl-2 sm:justify-start sm:pl-5">
               <template v-for="(part, index) in ageParts" :key="part.key">
                 <div class="flex items-end gap-[3px]">
                   <span

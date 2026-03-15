@@ -96,7 +96,9 @@
     </header>
 
     <main class="mx-auto w-full max-w-[1100px] flex-1 px-4 py-6 sm:px-6 sm:py-8">
-      <section class="mx-auto flex w-full flex-col gap-6 sm:flex-row sm:justify-between">
+      <section
+        class="mx-auto grid w-full gap-6 items-stretch [grid-template-columns:repeat(auto-fit,minmax(min(100%,445px),1fr))]"
+      >
         <ProfileCard
           v-for="pet in pets"
           :key="pet.id"
