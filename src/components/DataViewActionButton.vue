@@ -27,7 +27,7 @@
 <script setup lang="js">
 import TooltipLabel from '@/components/TooltipLabel.vue'
 
-defineProps({
+const props = defineProps({
   disabled: {
     type: Boolean,
     default: false,
@@ -50,7 +50,7 @@ defineProps({
 const emit = defineEmits(['request-auth'])
 
 function handleClick() {
-  if (!disabled) {
+  if (!props.disabled) {
     emit('request-auth')
   }
 }

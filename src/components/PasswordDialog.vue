@@ -10,10 +10,15 @@
         @keyup.enter="submit"
         autofocus
       />
-      <div v-if="error" class="text-red-600 text-sm mb-2">Contraseña incorrecta</div>
+      <div v-if="getErrorMessage()" class="text-red-600 text-sm mb-2">{{ getErrorMessage() }}</div>
       <div class="flex gap-3 w-full">
         <button class="btn-secondary flex-1" @click="$emit('cancel')">Cancelar</button>
-        <button class="rounded-xl bg-[var(--color-text-dark)] text-white px-4 py-2 flex-1" @click="submit">Aceptar</button>
+        <button
+          class="rounded-xl bg-[var(--color-text-dark)] text-white px-4 py-2 flex-1"
+          @click="submit"
+        >
+          Aceptar
+        </button>
       </div>
     </div>
   </div>
@@ -27,16 +32,21 @@ const props = defineProps({
 })
 const emit = defineEmits(['success', 'cancel'])
 const input = ref('')
-const error = ref(false)
-const PASSWORD = '12345'
+const hasInvalidPassword = ref(false)
+const fallbackPassword = '12345'
+const actionPassword = (import.meta.env.VITE_ACTION_PASSWORD ?? fallbackPassword).trim()
+
+function getErrorMessage() {
+  return hasInvalidPassword.value ? 'Contraseña incorrecta' : ''
+}
 
 function submit() {
-  if (input.value === PASSWORD) {
-    error.value = false
+  if (input.value === actionPassword) {
+    hasInvalidPassword.value = false
     emit('success')
     input.value = ''
   } else {
-    error.value = true
+    hasInvalidPassword.value = true
     input.value = ''
   }
 }
@@ -44,7 +54,7 @@ function submit() {
 watch(() => props.open, (val) => {
   if (!val) {
     input.value = ''
-    error.value = false
+    hasInvalidPassword.value = false
   }
 })
 </script>

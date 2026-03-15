@@ -1,9 +1,3 @@
-function onDateInputChange(e) { // e.target.value is YYYY-MM-DD const iso = e.target.value
-editForm.value.dateISO = iso // Format to DD mon YYYY (e.g. 09 mar 2026) if (iso) { const d = new
-Date(iso) if (!isNaN(d)) { // Spanish month short const months = ['ene', 'feb', 'mar', 'abr', 'may',
-'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'] const day = String(d.getDate()).padStart(2, '0')
-const mon = months[d.getMonth()] const year = d.getFullYear() editForm.value.date = `${day} ${mon}
-${year}` } } else { editForm.value.date = '' } }
 <template>
   <section
     :class="[
@@ -42,11 +36,9 @@ ${year}` } } else { editForm.value.date = '' } }
       No hay registros todavia.
     </p>
 
-    <div
-      v-if="showTable && !loading && props.rows.length > 0"
-      class="h-[340px] overflow-x-auto overflow-y-auto lg:overflow-x-hidden sm:h-[420px]"
-    >
-      <table class="min-w-full border-collapse px-4">
+    <div v-if="!loading && props.rows.length > 0">
+      <div v-if="showTable" class="h-[340px] overflow-x-auto overflow-y-auto lg:overflow-x-hidden sm:h-[420px]">
+        <table class="min-w-full border-collapse px-4">
         <thead>
           <tr class="border-b border-gray-200 text-left">
             <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">Fecha</th>
@@ -121,30 +113,6 @@ ${year}` } } else { editForm.value.date = '' } }
                   tooltip="Borrar"
                   @request-auth="openPasswordDialog('delete', row)"
                 >
-                  <PasswordDialog
-                    :open="passwordDialog.open"
-                    @success="onPasswordSuccess"
-                    @cancel="onPasswordCancel"
-                  />
-                  import PasswordDialog from '@/components/PasswordDialog.vue'
-                  const passwordDialog = ref({ open: false, action: '', row: null })
-
-                  function openPasswordDialog(action, row) {
-                    passwordDialog.value = { open: true, action, row }
-                  }
-
-                  function onPasswordSuccess() {
-                    if (passwordDialog.value.action === 'edit') {
-                      requestEdit(passwordDialog.value.row)
-                    } else if (passwordDialog.value.action === 'delete') {
-                      requestDelete(passwordDialog.value.row.id)
-                    }
-                    passwordDialog.value = { open: false, action: '', row: null }
-                  }
-
-                  function onPasswordCancel() {
-                    passwordDialog.value = { open: false, action: '', row: null }
-                  }
                   <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
                       d="M4 7h16"
@@ -180,12 +148,18 @@ ${year}` } } else { editForm.value.date = '' } }
             </td>
           </tr>
         </tbody>
-      </table>
+        </table>
+      </div>
+      <div v-else class="h-[340px] w-full sm:h-[420px]">
+        <canvas ref="chartCanvas" aria-label="Grafica de lineas de peso por edad"></canvas>
+      </div>
     </div>
 
-    <div v-else-if="!loading && props.rows.length > 0" class="h-[340px] w-full sm:h-[420px]">
-      <canvas ref="chartCanvas" aria-label="Grafica de lineas de peso por edad"></canvas>
-    </div>
+    <PasswordDialog
+      :open="passwordDialog.open"
+      @success="onPasswordSuccess"
+      @cancel="onPasswordCancel"
+    />
 
     <p class="mt-4 text-right text-sm text-[var(--color-text-secondary)]">
       Ultimo registro: {{ lastEntryDate }}
@@ -295,14 +269,13 @@ ${year}` } } else { editForm.value.date = '' } }
             <label class="mb-2 block text-sm font-medium" :style="{ color: pet.primaryColor }"
               >{{ pet.name }} (g)</label
             >
-            <input
-              v-model.number="editForm.weights[pet.weightKey]"
-              type="number"
-              inputmode="numeric"
-              min="1"
-              step="100"
+            <StepNumberInput
+              :model-value="editForm.weights[pet.weightKey] ?? null"
               placeholder="800"
-              class="input-field"
+              :input-aria-label="`Peso de ${pet.name} en gramos`"
+              :increment-label="`Aumentar peso de ${pet.name}`"
+              :decrement-label="`Reducir peso de ${pet.name}`"
+              @update:model-value="setEditWeightValue(pet.weightKey, $event)"
             />
           </div>
         </div>
@@ -349,7 +322,7 @@ ${year}` } } else { editForm.value.date = '' } }
 </template>
 
 <script setup lang="js">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   Chart,
   Filler,
@@ -362,8 +335,37 @@ import {
   CategoryScale,
 } from 'chart.js'
 import DataViewActionButton from '@/components/DataViewActionButton.vue'
+import PasswordDialog from '@/components/PasswordDialog.vue'
+import StepNumberInput from '@/components/StepNumberInput.vue'
 import { formatDateForDisplay, getAgeTextFromBirthday } from '@/utils/petAge'
-import { onMounted } from 'vue'
+
+const passwordDialog = ref({ open: false, action: '', row: null })
+
+function openPasswordDialog(action, row) {
+  if (!row) return
+  passwordDialog.value = { open: true, action, row }
+}
+
+function resetPasswordDialog() {
+  passwordDialog.value = { open: false, action: '', row: null }
+}
+
+function onPasswordSuccess() {
+  const { action, row } = passwordDialog.value
+  resetPasswordDialog()
+
+  if (!row) return
+
+  if (action === 'edit') {
+    requestEdit(row)
+  } else if (action === 'delete') {
+    requestDelete(row.id)
+  }
+}
+
+function onPasswordCancel() {
+  resetPasswordDialog()
+}
 
 onMounted(async () => {
   if (!showTable.value && props.rows.length > 0) {
@@ -472,10 +474,12 @@ const lastEntryDate = computed(() => {
 })
 
 function requestDelete(rowId) {
+  pendingEditId.value = null
   pendingDeleteId.value = rowId
 }
 
 function requestEdit(row) {
+  pendingDeleteId.value = null
   pendingEditId.value = row.id
 
   const weights = Object.fromEntries(
@@ -530,6 +534,32 @@ function confirmEdit() {
   })
 
   pendingEditId.value = null
+}
+
+function setEditWeightValue(weightKey, value) {
+  editForm.value.weights[weightKey] = value
+}
+
+function onDateInputChange(event) {
+  const iso = event?.target?.value ?? ''
+  editForm.value.dateISO = iso
+
+  if (!iso) {
+    editForm.value.date = ''
+    return
+  }
+
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) {
+    editForm.value.date = ''
+    return
+  }
+
+  const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+  editForm.value.date = `${day} ${month} ${year}`
 }
 
 function getPetAgeAtDate(petKey, dateValue) {

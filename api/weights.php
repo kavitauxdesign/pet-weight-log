@@ -34,7 +34,7 @@ function readWeightHistory(string $path): array
         throw new RuntimeException('Failed to read data file');
     }
 
-    $decoded = json_decode($raw, true);
+    $decoded = decodeJsonFileContents($raw);
     if (!is_array($decoded)) {
         throw new RuntimeException('Data file has invalid JSON');
     }
@@ -72,7 +72,7 @@ function readPetWeightKeys(string $path): array
         throw new RuntimeException('Failed to read pets config file');
     }
 
-    $decoded = json_decode($raw, true);
+    $decoded = decodeJsonFileContents($raw);
     if (!is_array($decoded)) {
         throw new RuntimeException('Pets config has invalid JSON');
     }
@@ -99,6 +99,13 @@ function readPetWeightKeys(string $path): array
     }
 
     return $uniqueKeys;
+}
+
+function decodeJsonFileContents(string $raw): mixed
+{
+    // Some FTP/editor workflows save UTF-8 JSON files with a BOM, which breaks json_decode.
+    $normalized = preg_replace('/^\xEF\xBB\xBF/', '', $raw);
+    return json_decode($normalized ?? $raw, true);
 }
 
 function extractValidatedWeights(array $body, array $weightKeys): ?array

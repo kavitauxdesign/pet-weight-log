@@ -43,7 +43,27 @@
         aria-live="polite"
       >
         <svg
-          v-if="toastType === 'edit'"
+          v-if="toastType === 'add'"
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 5v14"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+          <path
+            d="M5 12h14"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+        <svg
+          v-else-if="toastType === 'edit'"
           class="h-4 w-4"
           viewBox="0 0 24 24"
           fill="none"
@@ -96,19 +116,24 @@
     </header>
 
     <main class="mx-auto w-full max-w-[1100px] flex-1 px-4 py-6 sm:px-6 sm:py-8">
-      <section class="mx-auto flex w-full flex-col gap-6 sm:flex-row sm:justify-between">
+      <section
+        class="mx-auto grid w-full gap-6 items-stretch [grid-template-columns:repeat(auto-fit,minmax(min(100%,445px),1fr))]"
+      >
         <ProfileCard
-          v-for="pet in pets"
+          v-for="pet in petsWithAvatarState"
           :key="pet.id"
+          :profile-id="pet.id"
           :name="pet.name"
-          :photo="pet.photo"
+          :photo="pet.frontPhoto"
           :back_photo="pet.backPhoto"
+          :selected_side="pet.selectedSide"
           :breed="pet.breed"
           :nickname="pet.nickname"
           :birthday="pet.birthday"
           :primary_color="pet.primaryColor"
           :current_weight="petStats[pet.id]?.currentWeight ?? 800"
           :weight_diff="petStats[pet.id]?.weightDiff ?? 0"
+          @update:selected-side="handleAvatarSelectedSide(pet.id, $event)"
         />
       </section>
 
@@ -127,18 +152,18 @@
       </section>
 
       <section class="mt-6 sm:mt-8">
-        <WeightForm :pets="pets" @submit="handleSubmit" />
+        <WeightForm :pets="petsWithAvatarState" @submit="handleSubmit" />
       </section>
     </main>
   </div>
 </template>
 
 <script setup lang="js">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import DataView from '@/components/DataView.vue'
 import ProfileCard from '@/components/ProfileCard.vue'
 import WeightForm from '@/components/WeightForm.vue'
-import pets from '@/data/pets.json'
+import pets from '../data/pets.json'
 import { addWeight, deleteWeight, getWeights, updateWeight } from '@/services/weightService'
 
 const rows = ref([])
@@ -151,6 +176,24 @@ const toastMessage = ref('')
 const toastType = ref('')
 let toastTimer = null
 const petBirthdays = Object.fromEntries(pets.map((pet) => [pet.id, pet.birthday]))
+const AVATAR_SIDE_STORAGE_VERSION = 'v2'
+const avatarSelectedSides = reactive(
+  Object.fromEntries(pets.map((pet) => [pet.id, readAvatarSelectedSide(pet.id)])),
+)
+
+const petsWithAvatarState = computed(() => {
+  return pets.map((pet) => {
+    const frontPhoto = pet.formPhoto ?? pet.photo
+    const selectedSide = avatarSelectedSides[pet.id] ?? 'front'
+
+    return {
+      ...pet,
+      frontPhoto,
+      selectedSide,
+      displayPhoto: selectedSide === 'back' ? pet.backPhoto : frontPhoto,
+    }
+  })
+})
 
 const petStats = computed(() => {
   const orderedRows = [...rows.value].sort((a, b) => Number(a.id) - Number(b.id))
@@ -173,6 +216,29 @@ const petStats = computed(() => {
   return Object.fromEntries(pets.map((pet) => [pet.id, buildStat(pet.weightKey)]))
 })
 
+function getAvatarStorageKey(petId) {
+  return `petpeso-avatar-side:${AVATAR_SIDE_STORAGE_VERSION}:${petId}`
+}
+
+function readAvatarSelectedSide(petId) {
+  try {
+    const storedSide = sessionStorage.getItem(getAvatarStorageKey(petId))
+    return storedSide === 'back' ? 'back' : 'front'
+  } catch {
+    return 'front'
+  }
+}
+
+function handleAvatarSelectedSide(petId, side) {
+  avatarSelectedSides[petId] = side === 'back' ? 'back' : 'front'
+
+  try {
+    sessionStorage.setItem(getAvatarStorageKey(petId), avatarSelectedSides[petId])
+  } catch {
+    // Ignore storage failures and keep the in-memory selection.
+  }
+}
+
 async function loadWeights() {
   isLoading.value = true
   errorMessage.value = ''
@@ -194,6 +260,7 @@ async function handleSubmit(entry) {
     const created = await addWeight(entry)
     if (created) {
       rows.value = [...rows.value, created]
+      showSuccessToast('Peso añadido!', 'add')
     }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'No se pudo guardar el registro.'

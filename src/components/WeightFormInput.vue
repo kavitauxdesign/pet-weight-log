@@ -8,30 +8,32 @@
       {{ label }}
     </label>
 
-    <div class="flex items-center">
-      <img :src="photo" :alt="`Foto de ${petName}`" class="h-20 w-20 rounded-full object-cover" />
+    <div class="flex items-center gap-2">
+      <img
+        :src="photo"
+        :alt="`Foto de ${petName}`"
+        class="h-20 w-20 rounded-full border-[1px] bg-white object-cover"
+        :style="{ borderColor: photoBorderColor }"
+      />
 
-      <input
+      <StepNumberInput
         :id="inputId"
-        :value="modelValue"
-        type="number"
-        inputmode="numeric"
-        min="1"
-        step="100"
+        :model-value="modelValue"
         placeholder="800"
-        :class="[
-          'h-12 w-full rounded-2xl border border-gray-300 px-4 text-base',
-          'text-[var(--color-text-dark)] outline-none transition focus:border-gray-400',
-        ]"
-        @focus="onFocus"
-        @input="onInput"
+        :input-aria-label="`${label} de ${petName}`"
+        :increment-label="`Aumentar ${label} de ${petName}`"
+        :decrement-label="`Reducir ${label} de ${petName}`"
+        class="w-full"
+        @update:model-value="emit('update:modelValue', $event)"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="js">
-const props = defineProps({
+import StepNumberInput from '@/components/StepNumberInput.vue'
+
+defineProps({
   modelValue: {
     type: Number,
     default: null,
@@ -56,18 +58,11 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  photoBorderColor: {
+    type: String,
+    default: 'var(--color-ui-border)',
+  },
 })
 
 const emit = defineEmits(['update:modelValue'])
-
-function onFocus() {
-  if (props.modelValue === null) {
-    emit('update:modelValue', 800)
-  }
-}
-
-function onInput(event) {
-  const value = event.target.value
-  emit('update:modelValue', value === '' ? null : Number(value))
-}
 </script>
