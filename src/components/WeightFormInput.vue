@@ -21,14 +21,16 @@
         :value="modelValue"
         type="number"
         inputmode="numeric"
-        min="1"
+        min="0"
         step="100"
         placeholder="800"
         :class="[
           'h-12 w-full rounded-2xl border border-gray-300 px-4 text-base',
           'text-[var(--color-text-dark)] outline-none transition focus:border-gray-400',
         ]"
+        @mousedown="onMouseDown"
         @focus="onFocus"
+        @keydown="onKeydown"
         @input="onInput"
       />
     </div>
@@ -36,6 +38,8 @@
 </template>
 
 <script setup lang="js">
+import { ref } from 'vue'
+
 const props = defineProps({
   modelValue: {
     type: Number,
@@ -68,15 +72,57 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
+const pendingStepNormalization = ref(false)
 
-function onFocus() {
+function ensureDefaultValue(event) {
   if (props.modelValue === null) {
+    if (event?.currentTarget instanceof HTMLInputElement) {
+      event.currentTarget.value = '800'
+    }
     emit('update:modelValue', 800)
   }
 }
 
+function onFocus(event) {
+  ensureDefaultValue(event)
+}
+
+function onMouseDown(event) {
+  if (!(event.currentTarget instanceof HTMLInputElement)) return
+
+  const spinnerZoneWidth = 28
+  const clickedSpinner = event.offsetX >= event.currentTarget.clientWidth - spinnerZoneWidth
+
+  if (clickedSpinner && props.modelValue === null) {
+    pendingStepNormalization.value = true
+  }
+
+  ensureDefaultValue(event)
+}
+
+function onKeydown(event) {
+  if (!['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'].includes(event.key)) return
+  if (props.modelValue === null) {
+    pendingStepNormalization.value = true
+  }
+  ensureDefaultValue(event)
+}
+
 function onInput(event) {
   const value = event.target.value
-  emit('update:modelValue', value === '' ? null : Number(value))
+
+  if (value === '') {
+    pendingStepNormalization.value = false
+    emit('update:modelValue', null)
+    return
+  }
+
+  let numericValue = Number(value)
+  if (pendingStepNormalization.value && Number.isFinite(numericValue)) {
+    numericValue = Math.round(numericValue / 100) * 100
+    pendingStepNormalization.value = false
+  }
+
+  emit('update:modelValue', numericValue)
 }
 </script>
