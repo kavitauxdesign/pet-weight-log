@@ -1,10 +1,8 @@
 <template>
-  <div
-    class="flex items-center overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-sm transition focus-within:border-gray-400"
-  >
+  <div class="stepper-shell">
     <button
       type="button"
-      class="flex h-12 w-12 shrink-0 items-center justify-center text-xl font-semibold text-[var(--color-text-dark)] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+      class="stepper-button"
       :disabled="disabled"
       :aria-label="decrementLabel"
       @click="stepValue(-1)"
@@ -20,14 +18,14 @@
       :placeholder="placeholder"
       :disabled="disabled"
       :aria-label="inputAriaLabel"
-      class="h-12 min-w-0 flex-1 border-x border-gray-200 bg-transparent px-3 text-center text-base font-medium text-[var(--color-text-dark)] outline-none placeholder:text-gray-400 disabled:cursor-not-allowed"
+      class="stepper-input"
       @input="onInput"
       @keydown="onKeydown"
-    />
+    >
 
     <button
       type="button"
-      class="flex h-12 w-12 shrink-0 items-center justify-center text-xl font-semibold text-[var(--color-text-dark)] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+      class="stepper-button"
       :disabled="disabled"
       :aria-label="incrementLabel"
       @click="stepValue(1)"

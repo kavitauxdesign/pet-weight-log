@@ -17,18 +17,28 @@
       <button
         v-if="!loading"
         type="button"
-        @click="toggleView"
         :class="[
           'rounded-full bg-[var(--color-age-box-bg)] px-3 py-1 text-sm font-medium',
           'text-[var(--color-text-dark)] transition hover:bg-gray-200',
         ]"
+        @click="toggleView"
       >
         {{ showTable ? 'Ver Grafica' : 'Ver Tabla' }}
       </button>
     </div>
 
-    <p v-if="loading" class="mb-4 text-sm text-[var(--color-text-secondary)]">Cargando datos...</p>
-    <p v-if="errorMessage" class="mb-4 text-sm text-red-600">{{ errorMessage }}</p>
+    <p
+      v-if="loading"
+      class="mb-4 text-sm text-[var(--color-text-secondary)]"
+    >
+      Cargando datos...
+    </p>
+    <p
+      v-if="errorMessage"
+      class="mb-4 text-sm text-red-600"
+    >
+      {{ errorMessage }}
+    </p>
     <p
       v-if="!loading && props.rows.length === 0"
       class="mb-4 text-sm text-[var(--color-text-secondary)]"
@@ -37,121 +47,144 @@
     </p>
 
     <div v-if="!loading && props.rows.length > 0">
-      <div v-if="showTable" class="h-[340px] overflow-x-auto overflow-y-auto lg:overflow-x-hidden sm:h-[420px]">
+      <div
+        v-if="showTable"
+        class="h-[340px] overflow-x-auto overflow-y-auto lg:overflow-x-hidden sm:h-[420px]"
+      >
         <table class="min-w-full border-collapse px-4">
-        <thead>
-          <tr class="border-b border-gray-200 text-left">
-            <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">Fecha</th>
-            <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">Edad</th>
-            <th
-              v-for="pet in petColumns"
-              :key="`head-${pet.id}`"
-              class="p-3 text-sm font-medium"
-              :style="{ color: pet.primaryColor }"
+          <thead>
+            <tr class="border-b border-gray-200 text-left">
+              <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">
+                Fecha
+              </th>
+              <th class="p-3 text-sm font-medium text-[var(--color-text-secondary)]">
+                Edad
+              </th>
+              <th
+                v-for="pet in petColumns"
+                :key="`head-${pet.id}`"
+                class="p-3 text-sm font-medium"
+                :style="{ color: pet.primaryColor }"
+              >
+                {{ pet.name }} (g)
+              </th>
+              <th class="p-3 text-right text-sm font-medium text-[var(--color-text-secondary)]">
+                Accion
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="row in props.rows"
+              :key="row.id"
+              :class="[
+                'cursor-default border-b border-[var(--color-age-box-bg)] odd:bg-white',
+                'even:bg-[var(--color-age-box-bg)] transition-shadow',
+                'hover:shadow-[0_2px_8px_rgba(209,213,219,0.55)] last:border-b-0',
+              ]"
             >
-              {{ pet.name }} (g)
-            </th>
-            <th class="p-3 text-right text-sm font-medium text-[var(--color-text-secondary)]">
-              Accion
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="row in props.rows"
-            :key="row.id"
-            :class="[
-              'cursor-default border-b border-[var(--color-age-box-bg)] odd:bg-white',
-              'even:bg-[var(--color-age-box-bg)] transition-shadow',
-              'hover:shadow-[0_2px_8px_rgba(209,213,219,0.55)] last:border-b-0',
-            ]"
-          >
-            <td class="p-3 text-sm text-[var(--color-text-dark)]">
-              {{ formatDateForDisplay(row.date) }}
-            </td>
-            <td class="p-3 text-sm text-[var(--color-text-secondary)]">
-              {{ getCombinedAgeForRow(row) }}
-            </td>
-            <td
-              v-for="pet in petColumns"
-              :key="`weight-${row.id}-${pet.id}`"
-              class="p-3 text-sm"
-              :style="{ color: pet.primaryColor }"
-            >
-              {{ getRowWeight(row, pet.weightKey) }}
-            </td>
-            <td class="p-3 text-right">
-              <div class="inline-flex items-center gap-0.5">
-                <DataViewActionButton
-                  :disabled="deletingId === row.id || editingId === row.id"
-                  :loading="editingId === row.id"
-                  aria-label="Editar registro"
-                  tooltip="Editar"
-                  @request-auth="openPasswordDialog('edit', row)"
-                >
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M4 20h4l10-10-4-4L4 16v4Z"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M12 6l4 4"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                </DataViewActionButton>
+              <td class="p-3 text-sm text-[var(--color-text-dark)]">
+                {{ formatDateForDisplay(row.date) }}
+              </td>
+              <td class="p-3 text-sm text-[var(--color-text-secondary)]">
+                {{ getCombinedAgeForRow(row) }}
+              </td>
+              <td
+                v-for="pet in petColumns"
+                :key="`weight-${row.id}-${pet.id}`"
+                class="p-3 text-sm"
+                :style="{ color: pet.primaryColor }"
+              >
+                {{ getRowWeight(row, pet.weightKey) }}
+              </td>
+              <td class="p-3 text-right">
+                <div class="inline-flex items-center gap-0.5">
+                  <DataViewActionButton
+                    :disabled="deletingId === row.id || editingId === row.id"
+                    :loading="editingId === row.id"
+                    aria-label="Editar registro"
+                    tooltip="Editar"
+                    @request-auth="openPasswordDialog('edit', row)"
+                  >
+                    <svg
+                      class="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M4 20h4l10-10-4-4L4 16v4Z"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M12 6l4 4"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </DataViewActionButton>
 
-                <DataViewActionButton
-                  :disabled="deletingId === row.id || editingId === row.id"
-                  :loading="deletingId === row.id"
-                  aria-label="Borrar registro"
-                  tooltip="Borrar"
-                  @request-auth="openPasswordDialog('delete', row)"
-                >
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M4 7h16"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                    />
-                    <path
-                      d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                    />
-                    <path
-                      d="M7.5 7.5l.7 11.2A1.5 1.5 0 0 0 9.7 20h4.6a1.5 1.5 0 0 0 1.5-1.3l.7-11.2"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                    />
-                    <path
-                      d="M10 10.5v6"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                    />
-                    <path
-                      d="M14 10.5v6"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                </DataViewActionButton>
-              </div>
-            </td>
-          </tr>
-        </tbody>
+                  <DataViewActionButton
+                    :disabled="deletingId === row.id || editingId === row.id"
+                    :loading="deletingId === row.id"
+                    aria-label="Borrar registro"
+                    tooltip="Borrar"
+                    @request-auth="openPasswordDialog('delete', row)"
+                  >
+                    <svg
+                      class="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M4 7h16"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+                      <path
+                        d="M7.5 7.5l.7 11.2A1.5 1.5 0 0 0 9.7 20h4.6a1.5 1.5 0 0 0 1.5-1.3l.7-11.2"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+                      <path
+                        d="M10 10.5v6"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M14 10.5v6"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </DataViewActionButton>
+                </div>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
-      <div v-else class="h-[340px] w-full sm:h-[420px]">
-        <canvas ref="chartCanvas" aria-label="Grafica de lineas de peso por edad"></canvas>
+      <div
+        v-else
+        class="h-[340px] w-full sm:h-[420px]"
+      >
+        <canvas
+          ref="chartCanvas"
+          aria-label="Grafica de lineas de peso por edad"
+        />
       </div>
     </div>
 
@@ -167,13 +200,13 @@
 
     <div
       v-if="isDeleteDialogOpen"
-      class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4"
+      class="modal-overlay z-40 px-4"
       role="dialog"
       aria-modal="true"
       aria-label="Confirmar eliminacion de registro"
     >
       <div
-        class="w-full max-w-[520px] rounded-2xl bg-[var(--color-surface)] p-6 shadow-[0_12px_30px_rgba(var(--shadow-card-rgb)/0.35)]"
+        class="modal-panel max-w-[520px]"
       >
         <h3 class="text-lg font-semibold text-[var(--color-text-dark)] sm:text-xl">
           ¿Seguro que quieres eliminar este registro de peso?
@@ -210,12 +243,20 @@
           </button>
           <button
             type="button"
-            class="rounded-xl bg-[var(--color-text-dark)] px-5 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            class="btn-primary px-5"
             :disabled="isDeletingPendingRecord"
             @click="confirmDelete"
           >
-            <span v-if="isDeletingPendingRecord" class="inline-flex items-center gap-2">
-              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <span
+              v-if="isDeletingPendingRecord"
+              class="inline-flex items-center gap-2"
+            >
+              <svg
+                class="spinner-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
                 <circle
                   class="opacity-25"
                   cx="12"
@@ -240,13 +281,13 @@
 
     <div
       v-if="isEditDialogOpen"
-      class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4"
+      class="modal-overlay z-40 px-4"
       role="dialog"
       aria-modal="true"
       aria-label="Editar registro de peso"
     >
       <div
-        class="w-full max-w-[560px] rounded-2xl bg-[var(--color-surface)] p-6 shadow-[0_12px_30px_rgba(var(--shadow-card-rgb)/0.35)]"
+        class="modal-panel max-w-[560px]"
       >
         <h3 class="text-lg font-semibold text-[var(--color-text-dark)] sm:text-xl">
           Editar registro de peso
@@ -254,21 +295,22 @@
 
         <div class="mt-5 space-y-4">
           <div>
-            <label class="mb-2 block text-sm font-medium text-[var(--color-text-secondary)]"
-              >Fecha</label
-            >
+            <label class="mb-2 block text-sm font-medium text-[var(--color-text-secondary)]">Fecha</label>
             <input
               v-model="editForm.dateISO"
               type="date"
               class="input-field"
-              @change="onDateInputChange"
-            />
+            >
           </div>
 
-          <div v-for="pet in petColumns" :key="`edit-${pet.id}`">
-            <label class="mb-2 block text-sm font-medium" :style="{ color: pet.primaryColor }"
-              >{{ pet.name }} (g)</label
-            >
+          <div
+            v-for="pet in petColumns"
+            :key="`edit-${pet.id}`"
+          >
+            <label
+              class="mb-2 block text-sm font-medium"
+              :style="{ color: pet.primaryColor }"
+            >{{ pet.name }} (g)</label>
             <StepNumberInput
               :model-value="editForm.weights[pet.weightKey] ?? null"
               placeholder="800"
@@ -291,12 +333,20 @@
           </button>
           <button
             type="button"
-            class="rounded-xl bg-[var(--color-text-dark)] px-5 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            class="btn-primary px-5"
             :disabled="!isEditFormValid || isEditingPendingRecord"
             @click="confirmEdit"
           >
-            <span v-if="isEditingPendingRecord" class="inline-flex items-center gap-2">
-              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <span
+              v-if="isEditingPendingRecord"
+              class="inline-flex items-center gap-2"
+            >
+              <svg
+                class="spinner-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
                 <circle
                   class="opacity-25"
                   cx="12"
@@ -423,7 +473,6 @@ const showTable = ref(false)
 const pendingDeleteId = ref(null)
 const pendingEditId = ref(null)
 const editForm = ref({
-  date: '', // DD mon YYYY (display)
   dateISO: '', // YYYY-MM-DD (for input[type=date])
   weights: {},
 })
@@ -496,7 +545,6 @@ function requestEdit(row) {
     }
   }
   editForm.value = {
-    date: formatDateForDisplay(row.date),
     dateISO: iso,
     weights,
   }
@@ -538,28 +586,6 @@ function confirmEdit() {
 
 function setEditWeightValue(weightKey, value) {
   editForm.value.weights[weightKey] = value
-}
-
-function onDateInputChange(event) {
-  const iso = event?.target?.value ?? ''
-  editForm.value.dateISO = iso
-
-  if (!iso) {
-    editForm.value.date = ''
-    return
-  }
-
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) {
-    editForm.value.date = ''
-    return
-  }
-
-  const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = months[date.getMonth()]
-  const year = date.getFullYear()
-  editForm.value.date = `${day} ${month} ${year}`
 }
 
 function getPetAgeAtDate(petKey, dateValue) {

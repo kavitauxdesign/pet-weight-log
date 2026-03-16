@@ -24,12 +24,12 @@
             :src="frontSrc"
             :alt="alt"
             :class="frontImageClass"
-          />
+          >
           <img
             :src="backSrc"
             :alt="`${alt} (reverso)`"
             :class="backImageClass"
-          />
+          >
         </span>
       </span>
     </span>

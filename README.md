@@ -1,104 +1,222 @@
-# pat-weight-log
+# PetPeso🐾
 
-This template should help get you started developing with Vue 3 in Vite.
+PetPeso is a small web app designed to track pet weight records in a
+simple and visual way.
 
-## Recommended IDE Setup
+The name **PetPeso** literally means *"pet's weight"*.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+The goal of the project is intentionally simple:\
+register pet weight entries and visualize their evolution over time.
 
-## Recommended Browser Setup
+The app is built with **Vue 3 + Vite** on the frontend and a very small
+**PHP + JSON backend** that handles persistence.
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+It is designed to stay **lightweight, practical, and easy to deploy**,
+especially on classic **FTP/shared-hosting environments**.
 
-## Customize configuration
+Instead of using a heavy backend stack, the app relies on:
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+-   a small PHP API
+-   JSON files for storage
+-   a compiled frontend build
 
-## Project Setup
+The core workflow is simple:
 
-```sh
+-   register new weight entries
+-   review past records in a table
+-   visualize the evolution in a chart
+
+Sample data is currently written in **Spanish**.
+
+------------------------------------------------------------------------
+
+# Why this project exists
+
+PetPeso was created to solve a very specific everyday task:\
+**keeping track of pet weight changes in a clear and structured way.**
+
+The focus of the project is:
+
+-   clarity
+-   ease of use
+-   clean UI
+-   minimal technical overhead
+
+Rather than building a complex system, the goal was to create a **small,
+focused, and user-friendly tool** with a clean and modern interface.
+
+------------------------------------------------------------------------
+
+# How it works
+
+The project combines a small frontend application with a minimal PHP
+backend.
+
+## Frontend
+
+The user interface lives in:
+
+    src/
+
+It is built with **Vue 3** and bundled with **Vite**.
+
+## Backend
+
+The backend is intentionally simple:
+
+    api/weights.php
+
+This PHP script reads and writes data stored in JSON files.
+
+Data storage:
+
+    data/pets.json
+    data/weights-history.json
+
+When deployed together, the frontend and backend work as a simple
+**PHP-based web app**.
+
+------------------------------------------------------------------------
+
+# Screenshot
+
+Screenshot stored in:
+
+    public/docs/screenshot_desktop.png
+
+Preview:
+
+![Desktop screenshot](public/docs/screenshot_desktop.png)
+
+------------------------------------------------------------------------
+
+# Local development
+
+To run the project locally:
+
+``` sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-## PHP API setup (for FTP hosting)
-
-The app now saves and loads weights through `api/weights.php`, which reads/writes:
-
-- `data/weights-history.json`
-- `data/pets.json`
-
-Supported API methods:
-
-- `GET /api/weights.php` -> list records
-- `POST /api/weights.php` -> create record
-- `DELETE /api/weights.php?id=123` -> delete record
-
-### Local development with Vite + PHP
-
-1. Create `.env` from `.env.example` and keep:
-
-```sh
-# For local dev:
-VITE_API_BASE_URL=http://localhost:8000
-VITE_WEIGHT_API_TOKEN=change-me
-VITE_ACTION_PASSWORD=change-me
-# For production, leave VITE_API_BASE_URL empty (default):
-# VITE_API_BASE_URL=
-```
-
-2. Run frontend and API together:
-
-```sh
 npm run dev:full
 ```
 
-- Vite: `http://localhost:5173`
-- PHP API: `http://localhost:8000/api/weights.php`
+This starts:
 
-### FTP deployment (shared hosting)
+-   the Vue development server
+-   the PHP backend for local testing
 
-1. Build frontend:
+------------------------------------------------------------------------
 
-```sh
+# Build for deployment
+
+To prepare the app for upload:
+
+``` sh
 npm run build
 ```
 
-2. Upload these folders/files to your hosting root (or `public_html`):
+Then upload the following folders to your server:
 
-- `dist/*` contents (frontend static files)
-- `api/weights.php`
-- `data/weights-history.json`
-- `data/pets.json`
+    dist/
+    api/
+    data/
 
-3. Ensure `data/weights-history.json` is writable by PHP on the server.
+Your hosting environment must allow **PHP to write to**:
 
-4. Optional but recommended: define `WEIGHT_API_TOKEN` in your hosting PHP environment. Then build frontend with matching `VITE_WEIGHT_API_TOKEN`.
+    data/weights-history.json
 
-5. Set `VITE_ACTION_PASSWORD` before building if you want the add/edit/delete password prompt to work.
+------------------------------------------------------------------------
 
-6. In production, keep `VITE_API_BASE_URL` empty (default) so frontend calls `/api/weights.php` on same domain. All `localhost` URLs are for local development only.
+# Quality checks
 
-`VITE_ACTION_PASSWORD` is only frontend-level protection. Because it is bundled into client code, it should not be treated as a secure secret or as a replacement for backend authorization.
+Recommended checks before publishing:
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
+``` sh
 npm run lint
+npm run build
 ```
+
+------------------------------------------------------------------------
+
+# Deployment notes
+
+If the app works locally but shows an **empty table in production**,
+check the following files on the server:
+
+    api/weights.php
+    data/pets.json
+    data/weights-history.json
+
+When deploying through FTP, it may also help to **delete old assets
+before uploading a new build**, as browsers sometimes cache outdated
+files.
+
+The deployed structure should contain:
+
+    dist/index.html
+    dist/assets/...
+    api/weights.php
+    data/pets.json
+    data/weights-history.json
+
+------------------------------------------------------------------------
+
+# Password security
+
+## UI password popup
+
+To set your own password that the front-end will ask before add/edit/delete actions:
+
+``` sh
+fallbackPassword = '12345'
+```
+
+Note: this **does not replace real authentication**.  
+It only provides lightweight UI protection, useful if you want to share your pet data with friends or family without the risk of accidental changes.
+
+------------------------------------------------------------------------
+
+# Data structure
+
+## data/pets.json
+
+Each pet defines at least:
+
+-   id
+-   name
+-   birthday
+-   primaryColor
+-   photo
+-   formPhoto
+-   backPhoto
+-   weightKey
+
+------------------------------------------------------------------------
+
+## data/weights-history.json
+
+Each record stores:
+
+-   id
+-   date
+-   age
+-   one weight field for each configured `weightKey`
+
+------------------------------------------------------------------------
+
+# Current UX features
+
+-   add, edit, and delete actions require a password confirmation
+-   successful actions show a snackbar notification
+-   each pet avatar remembers the selected side for the current browser
+    session
+-   weight inputs use custom `- / +` controls with **100g steps**
+
+------------------------------------------------------------------------
+
+---
+
+# Final note🐾
+
+The code is **free to use**. No license is required.
+
+Simply add your pets to `pets.json`, include their avatars and photos, build, upload the project to an FTP server, and you're ready to go.🐾

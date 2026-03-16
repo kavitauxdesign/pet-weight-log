@@ -10,8 +10,8 @@
       <div class="relative flex shrink-0 flex-col items-center">
         <ProfileCardFlipAvatar
           :front-src="photo"
-          :back-src="back_photo"
-          :selected-side="selected_side"
+          :back-src="backPhoto"
+          :selected-side="selectedSide"
           :alt="`Avatar de ${name}`"
           size-class="h-[110px] w-[110px] sm:h-36 sm:w-36"
           @update:selected-side="$emit('update:selected-side', $event)"
@@ -46,22 +46,26 @@
 
         <div class="flex flex-col gap-4">
           <div class="flex items-start justify-center gap-2 sm:justify-start">
-            <img class="h-11 w-11 object-contain" src="/assets/scale_icon.svg" alt="scale icon" />
+            <img
+              class="h-11 w-11 object-contain"
+              src="/assets/scale_icon.svg"
+              alt="scale icon"
+            >
             <div class="flex flex-col gap-1">
               <span
                 class="text-lg leading-[1] font-normal text-[var(--color-text-dark)] sm:text-2xl"
-                >{{ current_weight }}
+              >{{ currentWeight }}
                 <span class="-ml-0.5 text-[13px] text-[var(--color-text-secondary)]">gramos</span>
               </span>
               <span
                 :class="[
                   'mt-0.5 text-[13px] leading-[1] font-normal',
-                  weight_diff >= 0
+                  weightDiff >= 0
                     ? 'text-[var(--color-text-green)]'
                     : 'text-[var(--color-text-red)]',
                 ]"
               >
-                {{ weight_diff >= 0 ? '↑ ' : '↓ ' }}{{ Math.abs(weight_diff) }} g desde la última
+                {{ weightDiff >= 0 ? '↑ ' : '↓ ' }}{{ Math.abs(weightDiff) }} g desde la última
                 pesa
               </span>
             </div>
@@ -83,7 +87,7 @@
                 ]"
                 src="/assets/birthday-cake-grey.svg"
                 alt="birthday cake icon"
-              />
+              >
 
               <div :class="['pointer-events-none absolute bottom-full left-1/2 z-10 -translate-x-1/2']">
                 <TooltipLabel
@@ -97,7 +101,10 @@
             </div>
 
             <div class="flex flex-1 flex-wrap items-center justify-center gap-1 pl-2 sm:justify-start sm:pl-5">
-              <template v-for="(part, index) in ageParts" :key="part.key">
+              <template
+                v-for="(part, index) in ageParts"
+                :key="part.key"
+              >
                 <div class="flex items-end gap-[3px]">
                   <span
                     :class="[
@@ -105,22 +112,19 @@
                       'sm:text-[26px]',
                     ]"
                     style="font-size: 20px; line-height: 21px"
-                    >{{ part.value }}</span
-                  >
+                  >{{ part.value }}</span>
                   <span
                     :class="[
                       'text-[13px] leading-4 font-normal text-[var(--color-text-secondary)]',
                       'sm:text-[17px]',
                     ]"
                     style="font-size: 13px"
-                    >{{ part.label }}</span
-                  >
+                  >{{ part.label }}</span>
                 </div>
                 <span
                   v-if="index < ageParts.length - 1"
                   class="pb-0.5 text-base leading-6 text-[var(--color-text-muted)]"
-                  >•</span
-                >
+                >•</span>
               </template>
             </div>
           </div>
@@ -139,10 +143,6 @@ import { getAgePartsFromBirthday } from '@/utils/petAge'
 defineEmits(['update:selected-side'])
 
 const props = defineProps({
-  profile_id: {
-    type: String,
-    required: true,
-  },
   name: {
     type: String,
     default: 'Natty',
@@ -151,11 +151,11 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  back_photo: {
+  backPhoto: {
     type: String,
     default: '',
   },
-  selected_side: {
+  selectedSide: {
     type: String,
     default: 'front',
   },
@@ -171,15 +171,15 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  primary_color: {
+  primaryColor: {
     type: String,
     default: 'var(--color-primary-natty)',
   },
-  current_weight: {
+  currentWeight: {
     type: Number,
     default: 800,
   },
-  weight_diff: {
+  weightDiff: {
     type: Number,
     default: 25,
   },
@@ -192,7 +192,7 @@ const ageParts = computed(() => {
 
 <style scoped>
 .profile-card {
-  --profile-primary: v-bind(primary_color);
+  --profile-primary: v-bind(primaryColor);
 }
 
 .font-dancing-script {

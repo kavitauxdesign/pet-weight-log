@@ -14,7 +14,7 @@
         :alt="`Foto de ${petName}`"
         class="h-20 w-20 rounded-full border-[1px] bg-white object-cover"
         :style="{ borderColor: photoBorderColor }"
-      />
+      >
 
       <StepNumberInput
         :id="inputId"

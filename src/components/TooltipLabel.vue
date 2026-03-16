@@ -1,7 +1,13 @@
 <template>
-  <span :class="['tooltip-chip', className]" role="tooltip">
+  <span
+    :class="['tooltip-chip', className]"
+    role="tooltip"
+  >
     <slot>{{ text }}</slot>
-    <span v-if="showArrow" class="tooltip-arrow"></span>
+    <span
+      v-if="showArrow"
+      class="tooltip-arrow"
+    />
   </span>
 </template>
 
