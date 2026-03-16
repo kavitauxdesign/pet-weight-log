@@ -1,4 +1,4 @@
-# PetPeso
+# PetPeso🐾
 
 PetPeso is a small web app designed to track pet weight records in a
 simple and visual way.
@@ -86,13 +86,7 @@ Screenshot stored in:
 
 Preview:
 
-```{=html}
-<p align="left">
-```
-`<img src="public/docs/screenshot_desktop.png" alt="Desktop screenshot" width="700" />`{=html}
-```{=html}
-</p>
-```
+![Desktop screenshot](public/docs/screenshot_desktop.png)
 
 ------------------------------------------------------------------------
 
@@ -166,34 +160,18 @@ The deployed structure should contain:
 
 ------------------------------------------------------------------------
 
-# Optional security
-
-## Backend write protection
-
-On the server:
-
-``` sh
-WEIGHT_API_TOKEN=your-token
-```
-
-Build the frontend with:
-
-``` sh
-VITE_WEIGHT_API_TOKEN=your-token
-```
-
-------------------------------------------------------------------------
+# Password security
 
 ## UI password popup
 
-To require a password before add/edit/delete actions:
+To set your own password that the front-end will ask before add/edit/delete actions:
 
 ``` sh
-VITE_ACTION_PASSWORD=your-password
+fallbackPassword = '12345'
 ```
 
-Note: this **does not replace real authentication**.\
-It only provides lightweight UI protection.
+Note: this **does not replace real authentication**.  
+It only provides lightweight UI protection, useful if you want to share your pet data with friends or family without the risk of accidental changes.
 
 ------------------------------------------------------------------------
 
@@ -232,3 +210,13 @@ Each record stores:
 -   each pet avatar remembers the selected side for the current browser
     session
 -   weight inputs use custom `- / +` controls with **100g steps**
+
+------------------------------------------------------------------------
+
+---
+
+# Final note🐾
+
+The code is **free to use**. No license is required.
+
+Simply add your pets to `pets.json`, include their avatars and photos, build, upload the project to an FTP server, and you're ready to go.🐾
