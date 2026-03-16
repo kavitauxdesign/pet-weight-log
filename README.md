@@ -1,236 +1,234 @@
 # PetPeso
 
-PetPeso is a pet weight tracking app built with Vue 3 + Vite, with JSON persistence handled by a small PHP API.
+PetPeso is a small web app designed to track pet weight records in a
+simple and visual way.
 
-The name "PetPeso" means "Pet's Weight".
+The name **PetPeso** literally means *"pet's weight"*.
 
-It is a small focused web app with a very concrete goal: register pet weights and visualize the data in both a table and a chart.
+The goal of the project is intentionally simple:\
+register pet weight entries and visualize their evolution over time.
 
-It is also designed to be lightweight and easy to upload to a classic FTP/shared-hosting environment, which is why it uses a simple frontend build plus a small PHP + JSON backend instead of a heavier stack.
+The app is built with **Vue 3 + Vite** on the frontend and a very small
+**PHP + JSON backend** that handles persistence.
 
-The project is structured with scalability in mind:
+It is designed to stay **lightweight, practical, and easy to deploy**,
+especially on classic **FTP/shared-hosting environments**.
 
-- new pets can be added from `data/pets.json`
-- reusable components make UI growth easier
-- data operations are centralized in `api/weights.php`
-- the current JSON storage can be replaced later by a real database or stronger backend auth if needed
+Instead of using a heavy backend stack, the app relies on:
 
-Note: the sample data is currently written in Spanish.
+-   a small PHP API
+-   JSON files for storage
+-   a compiled frontend build
 
-## Stack
+The core workflow is simple:
 
-- Vue 3
-- Vite
-- Tailwind CSS v4
-- Chart.js
-- PHP
-- JSON file storage
+-   register new weight entries
+-   review past records in a table
+-   visualize the evolution in a chart
 
-## Screenshots
+Sample data is currently written in **Spanish**.
 
-Screenshots are stored in `public/docs`:
+------------------------------------------------------------------------
 
-- `public/docs/screenshot_desktop.png`
-- `public/docs/screenshot_mobile.png`
+# Why this project exists
+
+PetPeso was created to solve a very specific everyday task:\
+**keeping track of pet weight changes in a clear and structured way.**
+
+The focus of the project is:
+
+-   clarity
+-   ease of use
+-   clean UI
+-   minimal technical overhead
+
+Rather than building a complex system, the goal was to create a **small,
+focused, and user-friendly tool** with a clean and modern interface.
+
+------------------------------------------------------------------------
+
+# How it works
+
+The project combines a small frontend application with a minimal PHP
+backend.
+
+## Frontend
+
+The user interface lives in:
+
+    src/
+
+It is built with **Vue 3** and bundled with **Vite**.
+
+## Backend
+
+The backend is intentionally simple:
+
+    api/weights.php
+
+This PHP script reads and writes data stored in JSON files.
+
+Data storage:
+
+    data/pets.json
+    data/weights-history.json
+
+When deployed together, the frontend and backend work as a simple
+**PHP-based web app**.
+
+------------------------------------------------------------------------
+
+# Screenshot
+
+Screenshot stored in:
+
+    public/docs/screenshot_desktop.png
 
 Preview:
 
+```{=html}
 <p align="left">
-  <img src="public/docs/screenshot_desktop.png" alt="Desktop view" width="700" />
-  <img src="public/docs/screenshot_mobile.png" alt="Mobile view" width="400" />
+```
+`<img src="public/docs/screenshot_desktop.png" alt="Desktop screenshot" width="700" />`{=html}
+```{=html}
 </p>
-<p align="left">
-  <strong>Desktop</strong>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <strong>Mobile</strong>
-</p>
+```
 
-## Important structure
+------------------------------------------------------------------------
 
-- `src/`: frontend app
-- `api/weights.php`: API to read, create, edit, and delete records
-- `data/pets.json`: pet configuration
-- `data/weights-history.json`: weight history
+# Local development
 
-`data/` is the single source of truth for pets and weight records.
+To run the project locally:
 
-## Scripts
-
-```sh
+``` sh
 npm install
-npm run dev
-npm run dev:api
 npm run dev:full
+```
+
+This starts:
+
+-   the Vue development server
+-   the PHP backend for local testing
+
+------------------------------------------------------------------------
+
+# Build for deployment
+
+To prepare the app for upload:
+
+``` sh
 npm run build
+```
+
+Then upload the following folders to your server:
+
+    dist/
+    api/
+    data/
+
+Your hosting environment must allow **PHP to write to**:
+
+    data/weights-history.json
+
+------------------------------------------------------------------------
+
+# Quality checks
+
+Recommended checks before publishing:
+
+``` sh
 npm run lint
-npm run e2e:data
-```
-
-## Local development
-
-### 1. Environment variables
-
-Create your `.env` from `.env.example`.
-
-Available variables:
-
-- `VITE_API_BASE_URL`: only used in local development through the Vite proxy. Usually `http://localhost:8000`
-- `VITE_WEIGHT_API_TOKEN`: optional token to protect `POST`, `PUT`, and `DELETE`
-- `VITE_ACTION_PASSWORD`: password used by the UI popup before add, edit, and delete actions
-
-To change the UI password, set a different value for:
-
-```sh
-VITE_ACTION_PASSWORD=your-password
-```
-
-Important:
-
-- all `VITE_...` variables are exposed in the frontend bundle
-- `VITE_ACTION_PASSWORD` is not real security, only a convenience gate
-- real write protection depends on `WEIGHT_API_TOKEN` in PHP
-- this app is designed for personal use and does not store important or sensitive data, so the password popup is intentionally frontend-only
-
-### 2. Run frontend and API
-
-In one command:
-
-```sh
-npm run dev:full
-```
-
-Or separately:
-
-```sh
-npm run dev
-npm run dev:api
-```
-
-Local URLs:
-
-- frontend: `http://localhost:5173`
-- PHP API: `http://localhost:8000/api/weights.php`
-
-In development, Vite proxies `/api` to `VITE_API_BASE_URL` or to `http://localhost:8000`.
-
-## API
-
-Main file:
-
-- `api/weights.php`
-
-Supported endpoints:
-
-- `GET /api/weights.php`
-- `POST /api/weights.php`
-- `PUT /api/weights.php?id=123`
-- `DELETE /api/weights.php?id=123`
-
-Important behavior:
-
-- reads and writes `data/weights-history.json`
-- validates the `weightKey` values defined in `data/pets.json`
-- tolerates UTF-8 BOM in JSON files to avoid common FTP/editor issues
-- uses `WEIGHT_API_TOKEN` if it exists in the PHP environment
-
-## FTP deployment
-
-The app is configured with base path `/petpeso/`, so the frontend expects to be published there.
-
-### Option 1: deploy from `dist/`
-
-1. Build the frontend:
-
-```sh
 npm run build
 ```
 
-This command generates the production frontend inside:
+------------------------------------------------------------------------
 
-- `dist/`
+# Deployment notes
 
-After building, `dist/` contains the compiled frontend files, including:
+If the app works locally but shows an **empty table in production**,
+check the following files on the server:
 
-- `index.html`
-- `assets/`
+    api/weights.php
+    data/pets.json
+    data/weights-history.json
 
-2. Upload these files/folders to the hosting target:
+When deploying through FTP, it may also help to **delete old assets
+before uploading a new build**, as browsers sometimes cache outdated
+files.
 
-- all contents of `dist/`
-- `api/`
-- `data/`
+The deployed structure should contain:
 
-In other words, the FTP deployment needs these frontend and backend parts together:
+    dist/index.html
+    dist/assets/...
+    api/weights.php
+    data/pets.json
+    data/weights-history.json
 
-- `dist/index.html` and `dist/assets/...`
-- `api/weights.php`
-- `data/pets.json`
-- `data/weights-history.json`
+------------------------------------------------------------------------
 
-3. Make sure PHP can write to:
+# Optional security
 
-- `data/weights-history.json`
+## Backend write protection
 
-4. If you want backend write protection, configure this on the host:
+On the server:
 
-```sh
+``` sh
 WEIGHT_API_TOKEN=your-token
 ```
 
-And build the frontend with:
+Build the frontend with:
 
-```sh
+``` sh
 VITE_WEIGHT_API_TOKEN=your-token
 ```
 
-5. If you want the UI password popup:
+------------------------------------------------------------------------
 
-```sh
+## UI password popup
+
+To require a password before add/edit/delete actions:
+
+``` sh
 VITE_ACTION_PASSWORD=your-password
 ```
 
-## Data
+Note: this **does not replace real authentication**.\
+It only provides lightweight UI protection.
 
-### `data/pets.json`
+------------------------------------------------------------------------
+
+# Data structure
+
+## data/pets.json
 
 Each pet defines at least:
 
-- `id`
-- `name`
-- `birthday`
-- `primaryColor`
-- `photo`
-- `formPhoto`
-- `backPhoto`
-- `weightKey`
+-   id
+-   name
+-   birthday
+-   primaryColor
+-   photo
+-   formPhoto
+-   backPhoto
+-   weightKey
 
-### `data/weights-history.json`
+------------------------------------------------------------------------
+
+## data/weights-history.json
 
 Each record stores:
 
-- `id`
-- `date`
-- `age`
-- one weight field for every configured `weightKey`
+-   id
+-   date
+-   age
+-   one weight field for each configured `weightKey`
 
-## Current UX
+------------------------------------------------------------------------
 
-- add, edit, and delete actions go through a password popup
-- successful add, edit, and delete actions show a snackbar
-- each pet avatar remembers the selected side for the current browser session
-- weight inputs use custom `- / +` controls with `100g` steps
+# Current UX features
 
-## Quality checks
-
-Recommended checks:
-
-```sh
-npm run lint
-npm run build
-```
-
-## Notes
-
-- `VITE_ACTION_PASSWORD` does not replace real authorization
-- if production shows an empty table, first check `api/weights.php`, `data/pets.json`, and `data/weights-history.json` on the server
-- if you upload through FTP and still see old behavior, remove old assets before uploading again
+-   add, edit, and delete actions require a password confirmation
+-   successful actions show a snackbar notification
+-   each pet avatar remembers the selected side for the current browser
+    session
+-   weight inputs use custom `- / +` controls with **100g steps**
